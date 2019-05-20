@@ -10760,10 +10760,10 @@ module.exports = function(module) {
 
 /***/ }),
 
-/***/ "./resources/assets/bootstrap/bootstrap.bundle.min.js":
-/*!************************************************************!*\
-  !*** ./resources/assets/bootstrap/bootstrap.bundle.min.js ***!
-  \************************************************************/
+/***/ "./resources/assets/website/bootstrap.bundle.min.js":
+/*!**********************************************************!*\
+  !*** ./resources/assets/website/bootstrap.bundle.min.js ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13649,10 +13649,10 @@ module.exports = function(module) {
 
 /***/ }),
 
-/***/ "./resources/assets/jquery/jquery.min.js":
-/*!***********************************************!*\
-  !*** ./resources/assets/jquery/jquery.min.js ***!
-  \***********************************************/
+/***/ "./resources/assets/website/jquery.min.js":
+/*!************************************************!*\
+  !*** ./resources/assets/website/jquery.min.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -17678,14 +17678,14 @@ module.exports = function(module) {
 /***/ }),
 
 /***/ 0:
-/*!**********************************************************************************************************!*\
-  !*** multi ./resources/assets/bootstrap/bootstrap.bundle.min.js ./resources/assets/jquery/jquery.min.js ***!
-  \**********************************************************************************************************/
+/*!*********************************************************************************************************!*\
+  !*** multi ./resources/assets/website/jquery.min.js ./resources/assets/website/bootstrap.bundle.min.js ***!
+  \*********************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! D:\xampp\htdocs\livechat\resources\assets\bootstrap\bootstrap.bundle.min.js */"./resources/assets/bootstrap/bootstrap.bundle.min.js");
-module.exports = __webpack_require__(/*! D:\xampp\htdocs\livechat\resources\assets\jquery\jquery.min.js */"./resources/assets/jquery/jquery.min.js");
+__webpack_require__(/*! C:\xampp\htdocs\livechat\resources\assets\website\jquery.min.js */"./resources/assets/website/jquery.min.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\livechat\resources\assets\website\bootstrap.bundle.min.js */"./resources/assets/website/bootstrap.bundle.min.js");
 
 
 /***/ })

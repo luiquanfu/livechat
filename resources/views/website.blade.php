@@ -7,8 +7,8 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <title>Live Chat</title>
-<link href="website/app.css" rel="stylesheet">
-<link href="website/website.css" rel="stylesheet">
+<link href="assets/website/app.css" rel="stylesheet">
+<link href="assets/website/website.css" rel="stylesheet">
 </head>
 
 <body>
@@ -87,7 +87,7 @@
 <div class="row">
 <div class="col-md-4 mb-5">
 <div class="card h-100">
-<img class="card-img-top" src="http://placehold.it/300x200" alt="">
+Starter
 <div class="card-body">
 <h4 class="card-title">Card title</h4>
 <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque sequi doloribus.</p>
@@ -99,7 +99,7 @@
 </div>
 <div class="col-md-4 mb-5">
 <div class="card h-100">
-<img class="card-img-top" src="http://placehold.it/300x200" alt="">
+Growing
 <div class="card-body">
 <h4 class="card-title">Card title</h4>
 <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque sequi doloribus totam ut praesentium aut.</p>
@@ -111,7 +111,7 @@
 </div>
 <div class="col-md-4 mb-5">
 <div class="card h-100">
-<img class="card-img-top" src="http://placehold.it/300x200" alt="">
+Enterprise
 <div class="card-body">
 <h4 class="card-title">Card title</h4>
 <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque.</p>
@@ -132,7 +132,7 @@
 </div>
 </footer>
 
-<script src="website/app.js"></script>
-<script src="website/website.js"></script>
+<script src="assets/website/app.js"></script>
+<script src="assets/website/website.js"></script>
 </body>
 </html>

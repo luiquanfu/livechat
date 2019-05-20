@@ -6,27 +6,28 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreatePasswordResetsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        Schema::create('password_resets', function (Blueprint $table) {
-            $table->string('email')->index();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+        $data = array();
+        $data['id'] = $this->unique_id();
+        $data['firstname'] = 'Quanfu';
+        $data['lastname'] = 'Lui';
+        $data['email'] = 'quanfu@hotmail.sg';
+        $data['mobile_country'] = '65';
+        $data['mobile_number'] = '90174663';
+        $data['password'] = bcrypt('alienwarem14x');
+        $data['created_at'] = time();
+        $data['updated_at'] = time();
+        DB::table('admins')->insert($data);
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
-        Schema::dropIfExists('password_resets');
+    }
+
+    public function unique_id()
+    {
+        $random = strtoupper(str_random(10));
+        return time().$random;
     }
 }

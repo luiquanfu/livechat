@@ -191,25 +191,21 @@ class Home extends Controller
 
         $admin = $response['admin'];
 
-        //create task
+        // create task
 		$task = (object)[];
 		$task->firstname = $admin->firstname;
 		$task->created_at = 'heee hee';
 		$task->message = 'hello';
 
-		//notify user
+		// notify user
 		$data = array();
 		$data['socket_id'] = $admin->id;
 		$data['action'] = 'chat_message';
 		$data['task'] = $task;
         \Redis::publish('admin', json_encode($data));
-
-        // \Redis::set('test', 'laravel data');
-        $test = \Redis::connection('default')->get('test');
         
         $html = '<br>broadcast driver = '.env('BROADCAST_DRIVER').
         $html = '<br>cache driver = '.env('CACHE_DRIVER').
-        $html = '<br>test = '.$test;
         
         // success
         $response = array();

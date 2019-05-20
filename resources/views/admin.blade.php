@@ -17,6 +17,7 @@
 <div id="app"></div>
 <script>
 var app_url = "{{ $app_url }}";
+var nodejs_url = "{{ $nodejs_url }}";
 var api_token = "{{ $api_token }}";
 var device_id = "{{ $device_id }}";
 var app_data = {};
@@ -87,6 +88,7 @@ days.push('Public Holiday Eve');
 <script src="assets/admin/bootstrap/bootstrap.min.js"></script>
 <script src="assets/admin/select2/select2.full.min.js"></script>
 <script src="assets/admin/adminlte/adminlte.min.js"></script>
+<script src="assets/socket.io.slim.js"></script>
 <script src="assets/admin/admin.js"></script>
 </body>
 </html>

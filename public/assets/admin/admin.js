@@ -40,6 +40,44 @@ function cropper_hide()
     $('#cropper_footer').hide();
 }
 
+function socket_initialize()
+{
+    var admin_id = app_data.admin.id;
+    var socket = io(nodejs_url);
+    var random_id = Math.floor((Math.random() * 9999));
+    var data = {};
+    data.socket_id = admin_id;
+    data.random_id = random_id;
+    data.channel = 'admin';
+    socket.emit('initialize', data);
+
+    //socket reconnect
+    socket.on("reconnect", function(message)
+    {
+        var data = {};
+        data.socket_id = admin_id;
+        data.random_id = random_id;
+        data.channel = 'admin';
+        socket.emit('initialize', data);
+    });
+
+    //socket message
+    socket.on('message', function(data)
+    {
+        var action = data.action;
+        console.log('action = ' + action);
+        
+        if(action == 'chat_group')
+        {
+            chat_message(data.task);
+        }
+        if(action == 'chat_message')
+        {
+            chat_message(data.task);
+        }
+    });
+}
+
 function initialize()
 {
     var data = {};
@@ -62,9 +100,12 @@ function initialize()
             return;
         }
 
-        ui_display();
-
         var admin = response.admin;
+        app_data.admin = admin;
+        
+        ui_display();
+        socket_initialize();
+
         var last_visit = admin.last_visit;
         if(last_visit == '')
         {
@@ -153,7 +194,36 @@ function ui_display()
 
 function testing()
 {
-    $('#content').html('testing');
+    $('#content').html('<div class="text-blue">Please wait...</div>');
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.device_id = device_id;
+    data.device_type = 'website';
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/test';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+
+		if(error == 1)
+		{
+			$('#content').html('<div class="text-red">' + message + '</div>');
+			return;
+		}
+        
+        $('#content').html('<div class="text-green">' + message + '</div>');
+	}
+    $.ajax(ajax);
 }
 
 function login_display()

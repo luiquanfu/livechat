@@ -17,6 +17,7 @@ Route::get('admin', 'Admin\Home@index');
 Route::post('admin/initialize', 'Admin\Home@initialize');
 Route::post('admin/login', 'Admin\Home@login');
 Route::post('admin/logout', 'Admin\Home@logout');
+Route::post('admin/test', 'Admin\Home@test');
 
 Route::post('admin/chat_display/listing', 'Admin\ChatDisplay@listing');
 Route::post('admin/chat_display/add', 'Admin\ChatDisplay@add');

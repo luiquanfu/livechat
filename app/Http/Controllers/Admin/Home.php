@@ -28,7 +28,8 @@ class Home extends Controller
 
         // response
         $data = array();
-        $data['app_url'] = url('');
+        $data['app_url'] = config('app.url');
+        $data['nodejs_url'] = config('app.nodejs_url');
         $data['api_token'] = $api_token;
         $data['device_id'] = $device_id;
         return view('admin', $data);
@@ -171,6 +172,49 @@ class Home extends Controller
         $response = array();
         $response['error'] = 0;
         $response['message'] = 'Success';
+        return $response;
+    }
+
+    public function test(Request $request)
+    {
+        // set variables
+        $api_token = $request->get('api_token');
+
+        \Log::info('Admin '.$api_token.' test');
+
+        // validate api_token
+        $response = $this->check_admin($api_token);
+        if($response['error'] != 0)
+        {
+            return $response;
+        }
+
+        $admin = $response['admin'];
+
+        //create task
+		$task = (object)[];
+		$task->firstname = $admin->firstname;
+		$task->created_at = 'heee hee';
+		$task->message = 'hello';
+
+		//notify user
+		$data = array();
+		$data['socket_id'] = $admin->id;
+		$data['action'] = 'chat_message';
+		$data['task'] = $task;
+        \Redis::publish('admin', json_encode($data));
+
+        // \Redis::set('test', 'hey how come');
+        $test = \Redis::connection('default')->get('test');
+        
+        $html = '<br>broadcast driver = '.env('BROADCAST_DRIVER').
+        $html = '<br>cache driver = '.env('CACHE_DRIVER').
+        $html = '<br>test = '.$test;
+        
+        // success
+        $response = array();
+        $response['error'] = 0;
+        $response['message'] = $html;
         return $response;
     }
 }

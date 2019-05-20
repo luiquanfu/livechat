@@ -110,7 +110,7 @@ categories.forEach(function(category)
     redis.subscribe(category);
     redis.on('message', function(channel, data)
     {
-        console.log(data);
+        // console.log(data);
 		data = JSON.parse(data);
 		var socket_id = data.socket_id;
 		if(typeof(websockets[channel][socket_id]) !== 'undefined')

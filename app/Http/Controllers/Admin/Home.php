@@ -204,7 +204,7 @@ class Home extends Controller
 		$data['task'] = $task;
         \Redis::publish('admin', json_encode($data));
 
-        // \Redis::set('test', 'hey how come');
+        // \Redis::set('test', 'laravel data');
         $test = \Redis::connection('default')->get('test');
         
         $html = '<br>broadcast driver = '.env('BROADCAST_DRIVER').

@@ -40,11 +40,11 @@ function cropper_hide()
     $('#cropper_footer').hide();
 }
 
-function socket_initialize()
+function socket_io()
 {
     var admin_id = app_data.admin.id;
     var socket = io(nodejs_url);
-    var random_id = Math.floor((Math.random() * 9999));
+    var random_id = Math.floor((Math.random() * 999999));
     var data = {};
     data.socket_id = admin_id;
     data.random_id = random_id;
@@ -104,7 +104,7 @@ function initialize()
         app_data.admin = admin;
         
         ui_display();
-        socket_initialize();
+        socket_io();
 
         var last_visit = admin.last_visit;
         if(last_visit == '')
@@ -221,7 +221,7 @@ function testing()
 			return;
 		}
         
-        $('#content').html('<div class="text-green">' + message + '</div>');
+        // $('#content').html('<div class="text-green">' + message + '</div>');
 	}
     $.ajax(ajax);
 }
@@ -341,6 +341,15 @@ function logout()
         login_display();
 	}
     $.ajax(ajax);
+}
+
+function chat_message(task)
+{
+    var html = '';
+    html += '<br>firstname = ' + task.firstname;
+    html += '<br>created at = ' + task.created_at;
+    html += '<br>message = ' + task.message;
+    $('#content').html(html);
 }
 
 function dashboard_index()

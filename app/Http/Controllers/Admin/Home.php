@@ -204,13 +204,10 @@ class Home extends Controller
 		$data['task'] = $task;
         \Redis::publish('admin', json_encode($data));
         
-        $html = '<br>broadcast driver = '.env('BROADCAST_DRIVER').
-        $html = '<br>cache driver = '.env('CACHE_DRIVER').
-        
         // success
         $response = array();
         $response['error'] = 0;
-        $response['message'] = $html;
+        $response['message'] = 'Success';
         return $response;
     }
 }

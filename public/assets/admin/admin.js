@@ -1,3 +1,68 @@
+var socket;
+var app_data = {};
+
+var hours = [];
+hours.push('12:00 AM');
+hours.push('12:30 AM');
+hours.push('1:00 AM');
+hours.push('1:30 AM');
+hours.push('2:00 AM');
+hours.push('2:30 AM');
+hours.push('3:00 AM');
+hours.push('3:30 AM');
+hours.push('4:00 AM');
+hours.push('4:30 AM');
+hours.push('5:00 AM');
+hours.push('5:30 AM');
+hours.push('6:00 AM');
+hours.push('6:30 AM');
+hours.push('7:00 AM');
+hours.push('7:30 AM');
+hours.push('8:00 AM');
+hours.push('8:30 AM');
+hours.push('9:00 AM');
+hours.push('9:30 AM');
+hours.push('10:00 AM');
+hours.push('10:30 AM');
+hours.push('11:00 AM');
+hours.push('11:30 AM');
+hours.push('12:00 PM');
+hours.push('12:30 PM');
+hours.push('1:00 PM');
+hours.push('1:30 PM');
+hours.push('2:00 PM');
+hours.push('2:30 PM');
+hours.push('3:00 PM');
+hours.push('3:30 PM');
+hours.push('4:00 PM');
+hours.push('4:30 PM');
+hours.push('5:00 PM');
+hours.push('5:30 PM');
+hours.push('6:00 PM');
+hours.push('6:30 PM');
+hours.push('7:00 PM');
+hours.push('7:30 PM');
+hours.push('8:00 PM');
+hours.push('8:30 PM');
+hours.push('9:00 PM');
+hours.push('9:30 PM');
+hours.push('10:00 PM');
+hours.push('10:30 PM');
+hours.push('11:00 PM');
+hours.push('11:30 PM');
+
+var days = [];
+days.push('Day');
+days.push('Monday');
+days.push('Tuesday');
+days.push('Wednesday');
+days.push('Thursday');
+days.push('Friday');
+days.push('Saturday');
+days.push('Sunday');
+days.push('Public Holiday');
+days.push('Public Holiday Eve');
+
 initialize();
 
 function popup_show(html)
@@ -43,12 +108,13 @@ function cropper_hide()
 function socket_io()
 {
     var admin_id = app_data.admin.id;
-    var socket = io(nodejs_url);
     var random_id = Math.floor((Math.random() * 999999));
     var data = {};
     data.socket_id = admin_id;
     data.random_id = random_id;
     data.channel = 'admin';
+    
+    socket = io(nodejs_url);
     socket.emit('initialize', data);
 
     //socket reconnect
@@ -315,8 +381,7 @@ function login_submit()
         api_token = admin.api_token;
         
         $('#result').html('<div class="text-green">' + message + '</div>');
-        ui_display();
-        website_index();
+        initialize();
 	}
     $.ajax(ajax);
 }
@@ -339,6 +404,7 @@ function logout()
 	{
         loading_hide();
         login_display();
+        socket.disconnect();
 	}
     $.ajax(ajax);
 }

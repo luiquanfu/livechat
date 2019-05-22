@@ -5,9 +5,14 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Live Chat Visitor</title>
 <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<link rel="stylesheet" href="{{ $app_url }}/assets/visitor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="{{ $app_url }}/assets/visitor/visitor.css">
 </head>
 <body>
+<div style="color: #0000FF;">
+<i class="fa fa-user"></i>
+<i class="fa fa-comment"></i>
+</div>
 <div id="app"></div>
 <script>
 var app_url = "{{ $app_url }}";

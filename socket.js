@@ -45,7 +45,11 @@ app.get('/total', function(req, res)
 
 //setup nodejs server
 var websockets = {};
-var options = {}
+var fs = require('fs');
+var options = {
+	key: fs.readFileSync('socket.key'),
+	cert: fs.readFileSync('socket.crt')
+}
 var server;
 if(protocol == 'http')
 {

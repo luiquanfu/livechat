@@ -15,7 +15,11 @@
 Route::get('', 'Website\Home@index');
 
 // visitor
-Route::post('visitor/message', 'Visitor\Home@message');
+Route::post('visitor/initialize', 'Visitor\Home@initialize');
+Route::post('visitor/chat/open', 'Visitor\Chat@open');
+Route::post('visitor/chat/message', 'Visitor\Chat@message');
+Route::post('visitor/chat/close', 'Visitor\Chat@close');
+Route::post('visitor/chat/rating', 'Visitor\Chat@rating');
 Route::get('visitor/{website_token}', 'Visitor\Home@index');
 
 // admin general

@@ -33,7 +33,7 @@ class ChatDisplay extends Controller
         $last_visit['page'] = 'chat_display_listing';
         $data = array();
         $data['last_visit'] = json_encode($last_visit);
-        \DB::table('admins')->where('id', $admin->id)->update($data);
+        \DB::connection('mysql')->table('admins')->where('id', $admin->id)->update($data);
 
         // validate page
         if($page < 1)
@@ -127,7 +127,7 @@ class ChatDisplay extends Controller
         $data['name'] = $name;
         $data['created_at'] = time();
         $data['updated_at'] = time();
-        \DB::table('chat_displays')->insert($data);
+        \DB::connection('mysql')->table('chat_displays')->insert($data);
 
         // success
         $response = array();
@@ -197,7 +197,7 @@ class ChatDisplay extends Controller
         $data = array();
         $data['name'] = $name;
         $data['updated_at'] = time();
-        \DB::table('chat_displays')->where('id', $chat_display_id)->update($data);
+        \DB::connection('mysql')->table('chat_displays')->where('id', $chat_display_id)->update($data);
 
         // success
         $response = array();
@@ -224,7 +224,7 @@ class ChatDisplay extends Controller
         // delete chat_display
         $data = array();
         $data['deleted_at'] = time();
-        \DB::table('chat_displays')->where('id', $chat_display_id)->update($data);
+        \DB::connection('mysql')->table('chat_displays')->where('id', $chat_display_id)->update($data);
 
         // success
         $response = array();

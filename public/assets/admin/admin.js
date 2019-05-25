@@ -1140,7 +1140,7 @@ function website_list()
 
             html += '<tr>';
             html += '<td>' + website.name + '</td>';
-            html += '<td><a href="' + website.url + '">' + website.url + '</a></td>';
+            html += '<td><a href="' + website.url + '" target="_BLANK">' + website.url + '</a></td>';
             html += '<td>';
             html += '<div class="btn btn-primary" onclick="website_edit(\'' + website.id + '\')"><i class="fa fa-edit"></i></div>';
             html += '<div class="width5"></div>';
@@ -1692,7 +1692,7 @@ function operating_hour_create()
 
     // actions
     html += '<td>';
-    html += '<div class="btn btn-danger" onclick="operating_hour_delete(\'' + operating_hour_id + '\', \'new\')"><i class="fa fa-trash"></i></div>';
+    html += '<div class="btn btn-danger" onclick="operating_hour_destroy(\'' + operating_hour_id + '\', \'new\')"><i class="fa fa-trash"></i></div>';
     html += '</td>';
     html += '</tr>';
 

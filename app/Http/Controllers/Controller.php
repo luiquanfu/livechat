@@ -47,7 +47,7 @@ class Controller extends BaseController
     public function check_admin($api_token)
     {
         // get admin_token
-        $query = \DB::table('admin_tokens');
+        $query = \DB::connection('mysql')->table('admin_tokens');
         $query->select('admin_id');
         $query->where('api_token', $api_token);
         $query->where('deleted_at', 0);
@@ -65,7 +65,7 @@ class Controller extends BaseController
         }
 
         // get admin
-        $query = \DB::table('admins');
+        $query = \DB::connection('mysql')->table('admins');
         $query->select('id', 'firstname', 'email', 'last_visit');
         $query->where('id', $admin_token->admin_id);
         $query->where('deleted_at', 0);

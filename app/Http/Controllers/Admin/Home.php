@@ -88,7 +88,7 @@ class Home extends Controller
         }
 
         // get admin
-        $query = \DB::table('admins');
+        $query = \DB::connection('mysql')->table('admins');
         $query->select('id', 'password');
         $query->where('email', $email);
         $query->where('deleted_at', 0);
@@ -113,7 +113,7 @@ class Home extends Controller
         }
 
         // get admin_token
-        $query = \DB::table('admin_tokens');
+        $query = \DB::connection('mysql')->table('admin_tokens');
         $query->select('id', 'api_token');
         $query->where('admin_id', $admin->id);
         $query->where('device_id', $device_id);
@@ -139,7 +139,7 @@ class Home extends Controller
             $data['api_token'] = $admin_token->api_token;
             $data['created_at'] = time();
             $data['updated_at'] = time();
-            \DB::table('admin_tokens')->insert($data);
+            \DB::connection('mysql')->table('admin_tokens')->insert($data);
         }
 
         setcookie('admin_token', $admin_token->api_token, time() + (60 * 60 * 24 * 365 * 1), '/');
@@ -165,7 +165,7 @@ class Home extends Controller
         // delete admin_token
         $data = array();
         $data['deleted_at'] = time();
-        \DB::table('admin_tokens')->where('api_token', $api_token)->update($data);
+        \DB::connection('mysql')->table('admin_tokens')->where('api_token', $api_token)->update($data);
         setcookie('admin_token', null, time() - 1, '/');
 
         // success

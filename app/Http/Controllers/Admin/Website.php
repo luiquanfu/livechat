@@ -33,7 +33,7 @@ class Website extends Controller
         $last_visit['page'] = 'website_listing';
         $data = array();
         $data['last_visit'] = json_encode($last_visit);
-        \DB::table('admins')->where('id', $admin->id)->update($data);
+        \DB::connection('mysql')->table('admins')->where('id', $admin->id)->update($data);
 
         // validate page
         if($page < 1)
@@ -144,7 +144,7 @@ class Website extends Controller
         $data['api_token'] = $this->unique_token();
         $data['created_at'] = time();
         $data['updated_at'] = time();
-        \DB::table('websites')->insert($data);
+        \DB::connection('mysql')->table('websites')->insert($data);
 
         // insert operating_hours
         foreach($new_operating_hours as $operating_hour)
@@ -157,7 +157,7 @@ class Website extends Controller
             $data['close_time'] = date_create_from_format('g:i A', $operating_hour['close_time'])->format('H:i:s');
             $data['created_at'] = time();
             $data['updated_at'] = time();
-            \DB::table('operating_hours')->insert($data);
+            \DB::connection('mysql')->table('operating_hours')->insert($data);
         }
 
         // success
@@ -253,7 +253,7 @@ class Website extends Controller
         $data['name'] = $name;
         $data['url'] = $url;
         $data['updated_at'] = time();
-        \DB::table('websites')->where('id', $website_id)->update($data);
+        \DB::connection('mysql')->table('websites')->where('id', $website_id)->update($data);
 
         // insert operating_hours
         foreach($new_operating_hours as $operating_hour)
@@ -266,7 +266,7 @@ class Website extends Controller
             $data['close_time'] = date_create_from_format('g:i A', $operating_hour['close_time'])->format('H:i:s');
             $data['created_at'] = time();
             $data['updated_at'] = time();
-            \DB::table('operating_hours')->insert($data);
+            \DB::connection('mysql')->table('operating_hours')->insert($data);
         }
 
         // update operating_hours
@@ -277,7 +277,7 @@ class Website extends Controller
             $data['open_time'] = date_create_from_format('g:i A', $operating_hour['open_time'])->format('H:i:s');
             $data['close_time'] = date_create_from_format('g:i A', $operating_hour['close_time'])->format('H:i:s');
             $data['updated_at'] = time();
-            \DB::table('operating_hours')->where('id', $operating_hour['id'])->update($data);
+            \DB::connection('mysql')->table('operating_hours')->where('id', $operating_hour['id'])->update($data);
         }
 
         // success
@@ -305,7 +305,7 @@ class Website extends Controller
         // delete website
         $data = array();
         $data['deleted_at'] = time();
-        \DB::table('websites')->where('id', $website_id)->update($data);
+        \DB::connection('mysql')->table('websites')->where('id', $website_id)->update($data);
 
         // success
         $response = array();

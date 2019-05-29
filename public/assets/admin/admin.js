@@ -144,6 +144,14 @@ function socket_io()
     });
 }
 
+function socket_new_chat()
+{
+    var html = '';
+    html += '<div style="padding: 12px 5px 12px 18px; background-color: #f39c12; color:#ffffff">';
+    html += '<i class="fa fa-commenting"></i> <div class="width5"></div>New Chat';
+    $('#conversation').prepend(html);
+}
+
 function initialize()
 {
     var data = {};
@@ -195,6 +203,11 @@ function initialize()
             chat_display_index();
             return;
         }
+        if(last_visit.page == 'admin_listing')
+        {
+            admin_index();
+            return;
+        }
 	}
     $.ajax(ajax);
 }
@@ -235,11 +248,13 @@ function ui_display()
     html += '<section class="sidebar">';
     html += '<ul class="sidebar-menu" data-widget="tree">';
     html += '<li><a href="#" onclick="dashboard_index()"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>';
+    html += '<li><a href="#" onclick="admin_index()"><i class="fa fa-user"></i> <span>Admin</span></a></li>';
     html += '<li><a href="#" onclick="chat_display_index()"><i class="fa fa-camera"></i> <span>Chat Display</span></a></li>';
     html += '<li><a href="#" onclick="website_index()"><i class="fa fa-object-group"></i> <span>Website</span></a></li>';
     html += '<li><a href="#" onclick="testing()"><i class="fa fa-fire"></i> <span>Testing</span></a></li>';
     html += '<li><a href="#" onclick="logout()"><i class="fa fa-power-off"></i> <span>Logout</span></a></li>';
     html += '</ul>';
+    html += '<div id="conversation"></div>';
     html += '</section>';
     html += '</aside>';
 
@@ -260,6 +275,9 @@ function ui_display()
 
 function testing()
 {
+    socket_new_chat();
+    return;
+    
     $('#content').html('<div class="text-blue">Please wait...</div>');
     loading_show();
 
@@ -608,6 +626,447 @@ function dashboard_list()
         var options = {};
         options.minimumResultsForSearch = -1;
         $('.select2').select2(options);
+	}
+    $.ajax(ajax);
+}
+
+function admin_index()
+{
+    app_data = {};
+    app_data.page = 1;
+    app_data.sort = 'firstname';
+    app_data.direction = 'asc';
+    app_data.filter_firstname = '';
+    admin_list();
+}
+
+function admin_list()
+{
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.page = app_data.page;
+    data.sort = app_data.sort;
+    data.direction = app_data.direction;
+    data.filter_firstname = app_data.filter_firstname;
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/listing';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+
+        var admins = response.admins;
+        var total_pages = response.total_pages;
+        var current_page = response.current_page;
+        var html = '';
+
+        // header
+        html += '<section class="content-header">';
+        html += '<h1>';
+        html += 'Admin Management';
+        html += '<small>Listing of all Admins</small>';
+        html += '</h1>';
+        html += '</section>';
+
+        // filter admins
+        html += '<section class="content">';
+        html += '<div class="row">';
+        html += '<div class="col-md-12">';
+        html += '<div class="box box-primary">';
+        html += '<div class="box-header with-border">';
+        html += '<h3 class="box-title">Filters</h3>';
+        html += '</div>';
+        html += '<div class="box-body">';
+        html += '<div class="form-group">';
+        html += '<label>Admin Name</label>';
+        html += '<input id="filter_firstname" type="text" class="form-control" value="' + app_data.filter_firstname + '">';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="box-footer">';
+        html += '<div class="btn btn-primary" onclick="admin_filter()">Filter</button>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</section>';
+
+        // create admins
+        html += '<div class="row">';
+        html += '<div class="col-md-12">';
+        html += '<div class="width15"></div>';
+        html += '<div class="btn btn-success" onclick="admin_create()">Create Admin</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // list admins
+        html += '<section class="content">';
+        html += '<div class="row">';
+        html += '<div class="col-xs-12">';
+        html += '<div class="box box-primary">';
+        html += '<div class="box-header">';
+        html += '<h3 class="box-title">Admin List</h3>';
+        html += '</div>';
+        html += '<div class="box-body table-responsive no-padding">';
+        html += '<table class="table table-hover">';
+        html += '<tr>';
+        html += '<th role="button" onclick="admin_sorting(\'name\')">Name</th>';
+        html += '<th>Actions</th>';
+        html += '</tr>';
+        for(i in admins)
+        {
+            var admin = admins[i];
+
+            html += '<tr>';
+            html += '<td>' + admin.name + '</td>';
+            html += '<td>';
+            html += '<div class="btn btn-primary" onclick="admin_edit(\'' + admin.id + '\')"><i class="fa fa-edit"></i></div>';
+            html += '<div class="width5"></div>';
+            html += '<div class="btn btn-danger" onclick="admin_remove(\'' + admin.id + '\')"><i class="fa fa-trash"></i></div>';
+            html += '</td>';
+            html += '</tr>';
+        }
+        html += '</table>';
+        html += '</div>';
+        html += '<div class="box-footer clearfix">';
+        html += '<ul class="pagination pagination-sm no-margin pull-right">';
+        for(var i = 1; i <= total_pages; i++)
+        {
+            var html_page = '<a href="#" onclick="admin_paging(' + i + ')">' + i + '</a>';
+            if(i == current_page)
+            {
+                html_page = '<li><span>' + i + '</span></li>';
+            }
+            html += '<li>' + html_page + '</li>';
+        }
+        html += '</ul>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</section>';
+        $('#content').html(html);
+	}
+    $.ajax(ajax);
+}
+
+function admin_filter()
+{
+    app_data.filter_firstname = $('#filter_firstname').val();
+    app_data.page = 1;
+    admin_list();
+}
+
+function admin_paging(page)
+{
+    app_data.page = page;
+    admin_list();
+}
+
+function admin_sorting(sort)
+{
+    if(sort == app_data.sort)
+    {
+        if(app_data.direction == 'asc')
+        {
+            app_data.direction = 'desc';
+        }
+        else
+        {
+            app_data.direction = 'asc';
+        }
+    }
+    if(sort != app_data.sort)
+    {
+        app_data.sort = sort;
+        app_data.direction = 'asc';
+    }
+    admin_list();
+}
+
+function admin_create()
+{
+    var html = '';
+
+    // header
+    html += '<section class="content">';
+    html += '<div class="row">';
+    html += '<div class="col-md-12">';
+    html += '<div class="box box-primary">';
+    html += '<div class="box-header with-border">';
+    html += '<h3 class="box-title">Add Admin</h3>';
+    html += '</div>';
+    html += '<div class="box-body">';
+
+    // firstname
+    html += '<div class="form-group">';
+    html += '<label>Admin First Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // lastname
+    html += '<div class="form-group">';
+    html += '<label>Admin Last Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // firstname
+    html += '<div class="form-group">';
+    html += '<label>Admin First Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // firstname
+    html += '<div class="form-group">';
+    html += '<label>Admin First Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // firstname
+    html += '<div class="form-group">';
+    html += '<label>Admin First Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // firstname
+    html += '<div class="form-group">';
+    html += '<label>Admin First Name</label>';
+    html += '<input id="firstname" type="text" class="form-control">';
+    html += '</div>';
+
+    // footer
+    html += '</div>';
+    html += '<div class="box-footer">';
+    html += '<div class="btn btn-success" onclick="admin_add()">Add Admin</button>';
+    html += '</div>';
+    html += '<div id="result"></div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</section>';
+
+    $('#content').html(html);
+}
+
+function admin_add()
+{
+    $('#result').html('<span class="text-light-blue">Please wait...</span>');
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.name = $('#name').val();
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/add';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+
+        if(error != 0)
+        {
+            $('#result').html('<span class="text-red">' + message + '</span>');
+            return;
+        }
+
+        $('#result').html('<span class="text-green">' + message + '</span>');
+        admin_list();
+	}
+    $.ajax(ajax);
+}
+
+function admin_edit(admin_id)
+{
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.admin_id = admin_id;
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/edit';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+		
+		if(error != 0)
+		{
+			$('#content').html(message);
+			return;
+		}
+		
+        var admin = response.admin;
+        var html = '';
+
+        // start
+        html += '<section class="content">';
+        html += '<div class="row">';
+        html += '<div class="col-md-12">';
+        html += '<div class="box box-primary">';
+        html += '<div class="box-header with-border">';
+        html += '<h3 class="box-title">Edit Admin</h3>';
+        html += '</div>';
+        html += '<div class="box-body">';
+
+        // id
+        html += '<input id="admin_id" type="hidden" value="' + admin.id + '">';
+
+        // name
+        html += '<div class="form-group">';
+        html += '<label>Admin Name</label>';
+        html += '<input id="name" type="text" class="form-control" value="' + admin.name + '">';
+        html += '</div>';
+
+        // end
+        html += '</div>';
+        html += '<div class="box-footer">';
+        html += '<div class="btn btn-primary" onclick="admin_update()">Update Admin</button>';
+        html += '</div>';
+        html += '<div id="result"></div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</section>';
+
+        $('#content').html(html);
+	}
+    $.ajax(ajax);
+}
+
+function admin_update()
+{
+    $('#result').html('<span class="text-light-blue">Please wait...</span>');
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.admin_id = $('#admin_id').val();
+    data.name = $('#name').val();
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/update';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+		
+		if(error == 1)
+		{
+			$('#result').html('<span class="text-red">' + message + '</span>');
+			return;
+		}
+		
+        $('#result').html('<span class="text-green">' + message + '</span>');
+        admin_list();
+	}
+    $.ajax(ajax);
+}
+
+function admin_remove(admin_id)
+{
+    var html = '';
+    html += '<div class="box box-danger">';
+    html += '<div class="box-header with-border">';
+    html += '<h3 class="box-title">Click Confirm to Delete</h3>';
+    html += '</div>';
+    html += '<div class="box-body">';
+    html += '<div class="btn btn-secondary" onclick="popup_hide()">Cancel</div>';
+    html += '<div class="width5"></div>';
+    html += '<div class="btn btn-danger" onclick="admin_destroy(\'' + admin_id + '\')">Confirm</div>';
+    html += '<div id="result"></div>';
+    html += '</div>';
+    html += '</div>';
+    popup_show(html);
+}
+
+function admin_destroy(admin_id)
+{
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.admin_id = admin_id;
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/destroy';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            window.location.href = login_url;
+            return;
+        }
+		
+		if(error == 1)
+		{
+			$('#result').html('<span class="text-red">' + message + '</span>');
+			return;
+		}
+		
+        $('#result').html('<span class="text-green">' + message + '</span>');
+
+        popup_hide();
+        admin_list();
 	}
     $.ajax(ajax);
 }

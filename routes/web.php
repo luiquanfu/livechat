@@ -30,6 +30,13 @@ Route::post('admin/logout', 'Admin\Home@logout');
 Route::post('admin/test', 'Admin\Home@test');
 
 // admin chat_display
+Route::post('admin/admin/listing', 'Admin\Admin@listing');
+Route::post('admin/admin/add', 'Admin\Admin@add');
+Route::post('admin/admin/edit', 'Admin\Admin@edit');
+Route::post('admin/admin/update', 'Admin\Admin@update');
+Route::post('admin/admin/destroy', 'Admin\Admin@destroy');
+
+// admin chat_display
 Route::post('admin/chat_display/listing', 'Admin\ChatDisplay@listing');
 Route::post('admin/chat_display/add', 'Admin\ChatDisplay@add');
 Route::post('admin/chat_display/edit', 'Admin\ChatDisplay@edit');

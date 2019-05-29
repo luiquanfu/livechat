@@ -8,7 +8,7 @@ function initialize()
     html += '<link rel="stylesheet" href="https://local.luiquanfu.com/assets/visitor/icono.min.css">';
 
     // livechat_frame
-    html += '<iframe id="livechat_frame" scrolling="no" src="http://local.luiquanfu.com/visitor/4e0e1a3fc239ff4cb28cb1e3e1ad6384" style="position: fixed; right: 50px; bottom: 120px; height: 520px; width: 350px; border-radius: 10px; background: none transparent; border: 1px solid #ffffff; z-index: 99999999;"></iframe>';
+    html += '<iframe id="livechat_frame" scrolling="no" src="https://www.luiquanfu.com/visitor/7bf98e545cb43144143e464231f7a756" style="position: fixed; right: 50px; bottom: 120px; height: 520px; width: 350px; border-radius: 10px; background: none transparent; border: 1px solid #ffffff; z-index: 99999999;"></iframe>';
     
     // livechat_open
     html += '<div id="livechat_open" style="position: fixed; right: 50px; bottom: 50px; height: 60px; width: 60px; cursor: pointer; z-index: 99999999;" onclick="livechat_open()">';

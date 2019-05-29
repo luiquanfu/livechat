@@ -14,7 +14,7 @@ class Admin extends Controller
         $page = $request->get('page');
         $sort = $request->get('sort');
         $direction = $request->get('direction');
-        $filter_name = $request->get('filter_name');
+        $filter_firstname = $request->get('filter_firstname');
         $paginate = 10;
 
         \Log::info('Admin '.$api_token.' list admin page '.$page);
@@ -76,9 +76,9 @@ class Admin extends Controller
         $select[] = 'name';
         $query->select($select);
         $total_admins = $query->count();
-        if(strlen($filter_name) != 0)
+        if(strlen($filter_firstname) != 0)
         {
-            $query->where('name', 'like', '%'.$filter_name.'%');
+            $query->where('name', 'like', '%'.$filter_firstname.'%');
         }
         $query->where('deleted_at', 0);
         $query->orderBy($sort, $direction);

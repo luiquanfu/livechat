@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="assets/admin/bootstrap/bootstrap.min.css">
 <link rel="stylesheet" href="assets/admin/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="assets/admin/select2/select2.min.css">
+<link rel="stylesheet" href="assets/admin/cropperjs/cropper.min.css">
 <link rel="stylesheet" href="assets/admin/adminlte/adminlte.min.css">
 <link rel="stylesheet" href="assets/admin/adminlte/skin-blue.min.css">
 <link rel="stylesheet" href="assets/admin/admin.css">
@@ -24,6 +25,7 @@ var device_id = "{{ $device_id }}";
 <script src="assets/admin/jquery/jquery.min.js"></script>
 <script src="assets/admin/bootstrap/bootstrap.min.js"></script>
 <script src="assets/admin/select2/select2.full.min.js"></script>
+<script src="assets/admin/cropperjs/cropper.min.js"></script>
 <script src="assets/admin/adminlte/adminlte.min.js"></script>
 <script src="assets/socket.io.slim.js"></script>
 <script src="assets/admin/admin.js"></script>

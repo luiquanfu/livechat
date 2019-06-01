@@ -66,7 +66,7 @@ class Controller extends BaseController
 
         // get admin
         $query = \DB::connection('mysql')->table('admins');
-        $query->select('id', 'firstname', 'email', 'last_visit');
+        $query->select('id', 'owner_id', 'firstname', 'email', 'last_visit');
         $query->where('id', $admin_token->admin_id);
         $query->where('deleted_at', 0);
         $admin = $query->first();

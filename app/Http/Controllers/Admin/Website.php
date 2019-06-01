@@ -80,7 +80,7 @@ class Website extends Controller
         {
             $query->where('name', 'like', '%'.$filter_name.'%');
         }
-        $query->where('admin_id', $admin->id);
+        $query->where('owner_id', $admin->owner_id);
         $query->where('deleted_at', 0);
         $query->orderBy($sort, $direction);
         $query->paginate($paginate);
@@ -138,7 +138,7 @@ class Website extends Controller
         $website_id = $this->unique_id();
         $data = array();
         $data['id'] = $website_id;
-        $data['admin_id'] = $admin->id;
+        $data['owner_id'] = $admin->owner_id;
         $data['name'] = $name;
         $data['url'] = $url;
         $data['api_token'] = $this->unique_token();

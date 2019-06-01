@@ -1,4 +1,5 @@
 var socket;
+var cropper;
 var app_data = {};
 
 var hours = [];
@@ -723,7 +724,9 @@ function admin_list()
         html += '<div class="box-body table-responsive no-padding">';
         html += '<table class="table table-hover">';
         html += '<tr>';
-        html += '<th role="button" onclick="admin_sorting(\'name\')">Name</th>';
+        html += '<th role="button" onclick="admin_sorting(\'firstname\')">Name</th>';
+        html += '<th role="button" onclick="admin_sorting(\'email\')">Email</th>';
+        html += '<th role="button" onclick="admin_sorting(\'mobile_number\')">Mobile</th>';
         html += '<th>Actions</th>';
         html += '</tr>';
         for(i in admins)
@@ -731,7 +734,9 @@ function admin_list()
             var admin = admins[i];
 
             html += '<tr>';
-            html += '<td>' + admin.name + '</td>';
+            html += '<td>' + admin.firstname + ' ' + admin.lastname + '</td>';
+            html += '<td>' + admin.email + '</td>';
+            html += '<td>' + admin.mobile_country + ' ' + admin.mobile_number + '</td>';
             html += '<td>';
             html += '<div class="btn btn-primary" onclick="admin_edit(\'' + admin.id + '\')"><i class="fa fa-edit"></i></div>';
             html += '<div class="width5"></div>';
@@ -813,38 +818,38 @@ function admin_create()
 
     // firstname
     html += '<div class="form-group">';
-    html += '<label>Admin First Name</label>';
+    html += '<label>First Name</label>';
     html += '<input id="firstname" type="text" class="form-control">';
     html += '</div>';
 
     // lastname
     html += '<div class="form-group">';
-    html += '<label>Admin Last Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
+    html += '<label>Last Name</label>';
+    html += '<input id="lastname" type="text" class="form-control">';
     html += '</div>';
 
-    // firstname
+    // email
     html += '<div class="form-group">';
-    html += '<label>Admin First Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
+    html += '<label>Email</label>';
+    html += '<input id="email" type="text" class="form-control">';
     html += '</div>';
 
-    // firstname
+    // mobile_country
     html += '<div class="form-group">';
-    html += '<label>Admin First Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
+    html += '<label>Mobile Country</label>';
+    html += '<input id="mobile_country" type="text" class="form-control">';
     html += '</div>';
 
-    // firstname
+    // mobile_number
     html += '<div class="form-group">';
-    html += '<label>Admin First Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
+    html += '<label>Mobile Number</label>';
+    html += '<input id="mobile_number" type="text" class="form-control">';
     html += '</div>';
 
-    // firstname
+    // password
     html += '<div class="form-group">';
-    html += '<label>Admin First Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
+    html += '<label>Password</label>';
+    html += '<input id="password" type="text" class="form-control">';
     html += '</div>';
 
     // footer
@@ -859,6 +864,50 @@ function admin_create()
     html += '</section>';
 
     $('#content').html(html);
+    $('#change_image').hide();
+}
+
+function admin_load_image()
+{
+    var local_url = URL.createObjectURL(event.target.files[0]);
+    var html_container = '';
+    var html_footer = '';
+
+    // prepare cropper
+    $('#change_image').prop('value', '');
+    html_container += '<img id="crop_image" src="' + local_url + '"></img>';
+    html_footer += '<div class="btn btn-default" onclick="cropper_hide()">Cancel</div>';
+    html_footer += '<div class="width5"></div>';
+    html_footer += '<div class="btn btn-success" onclick="admin_crop_image()">Upload Image</div>';
+    cropper_show(html_container, html_footer);
+
+    // load cropper
+    var image = document.getElementById('crop_image');
+    var options = {};
+    options.guides = false;
+    options.aspectRatio = 500 / 500;
+    options.zoomOnWheel = false;
+	cropper = new Cropper(image, options);
+}
+
+function admin_crop_image()
+{
+    loading_show();
+
+    // crop image
+    var options = {};
+    options.width = 500;
+    options.height = 500;
+    var logo = cropper.getCroppedCanvas(options).toDataURL('image/jpeg');
+
+    // display image
+    var html = '';
+    html += '<img src="' + logo + '" height="200" width="200">';
+    $('#div_image').html(html);
+    $('#image').val(logo);
+
+    loading_hide();
+    cropper_hide();
 }
 
 function admin_add()
@@ -868,7 +917,12 @@ function admin_add()
 
     var data = {};
     data.api_token = api_token;
-    data.name = $('#name').val();
+    data.firstname = $('#firstname').val();
+    data.lastname = $('#lastname').val();
+    data.email = $('#email').val();
+    data.mobile_country = $('#mobile_country').val();
+    data.mobile_number = $('#mobile_number').val();
+    data.password = $('#password').val();
     data = JSON.stringify(data);
 
     var ajax = {};
@@ -950,10 +1004,56 @@ function admin_edit(admin_id)
         // id
         html += '<input id="admin_id" type="hidden" value="' + admin.id + '">';
 
-        // name
+        // image
         html += '<div class="form-group">';
-        html += '<label>Admin Name</label>';
-        html += '<input id="name" type="text" class="form-control" value="' + admin.name + '">';
+        html += '<label class="col-sm-3">Image</label>';
+        html += '<div class="col-sm-9">';
+        html += '<div id="div_image">';
+        html += '<img src="' + admin.image + '" height="200" width="200">';
+        html += '</div>';
+        html += '<input id="image" type="hidden" value="">';
+        html += '<input id="change_image" type="file" accept="image/*" onchange="admin_load_image(event)">';
+        html += '<div class="height10"></div>';
+        html += '<div style="display: inline-block; width: 200px; text-align: center;">';
+        html += '<label class="btn btn-success" for="change_image">Upload Logo</label>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // firstname
+        html += '<div class="form-group">';
+        html += '<label>First Name</label>';
+        html += '<input id="firstname" type="text" class="form-control" value="' + admin.firstname + '">';
+        html += '</div>';
+
+        // lastname
+        html += '<div class="form-group">';
+        html += '<label>Last Name</label>';
+        html += '<input id="lastname" type="text" class="form-control" value="' + admin.lastname + '">';
+        html += '</div>';
+
+        // email
+        html += '<div class="form-group">';
+        html += '<label>Email</label>';
+        html += '<input id="email" type="text" class="form-control" value="' + admin.email + '">';
+        html += '</div>';
+
+        // mobile_country
+        html += '<div class="form-group">';
+        html += '<label>Country Code</label>';
+        html += '<input id="mobile_country" type="text" class="form-control" value="' + admin.mobile_country + '">';
+        html += '</div>';
+
+        // mobile_number
+        html += '<div class="form-group">';
+        html += '<label>Mobile Number</label>';
+        html += '<input id="mobile_number" type="text" class="form-control" value="' + admin.mobile_number + '">';
+        html += '</div>';
+
+        // password
+        html += '<div class="form-group">';
+        html += '<label>Change Password</label>';
+        html += '<input id="password" type="text" class="form-control">';
         html += '</div>';
 
         // end
@@ -968,6 +1068,7 @@ function admin_edit(admin_id)
         html += '</section>';
 
         $('#content').html(html);
+        $('#change_image').hide();
 	}
     $.ajax(ajax);
 }
@@ -980,7 +1081,13 @@ function admin_update()
     var data = {};
     data.api_token = api_token;
     data.admin_id = $('#admin_id').val();
-    data.name = $('#name').val();
+    data.image = $('#image').val();
+    data.firstname = $('#firstname').val();
+    data.lastname = $('#lastname').val();
+    data.email = $('#email').val();
+    data.mobile_country = $('#mobile_country').val();
+    data.mobile_number = $('#mobile_number').val();
+    data.password = $('#password').val();
     data = JSON.stringify(data);
 
     var ajax = {};

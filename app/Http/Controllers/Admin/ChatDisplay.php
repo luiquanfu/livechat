@@ -80,6 +80,7 @@ class ChatDisplay extends Controller
         {
             $query->where('name', 'like', '%'.$filter_name.'%');
         }
+        $query->where('owner_id', $admin->owner_id);
         $query->where('deleted_at', 0);
         $query->orderBy($sort, $direction);
         $query->paginate($paginate);
@@ -111,6 +112,8 @@ class ChatDisplay extends Controller
             return $response;
         }
 
+        $admin = $response['admin'];
+
         // validate name
         if(strlen($name) == 0)
         {
@@ -124,6 +127,7 @@ class ChatDisplay extends Controller
         $chat_display_id = $this->unique_id();
         $data = array();
         $data['id'] = $chat_display_id;
+        $data['owner_id'] = $admin->owner_id;
         $data['name'] = $name;
         $data['created_at'] = time();
         $data['updated_at'] = time();

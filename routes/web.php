@@ -13,6 +13,7 @@
 
 // website
 Route::get('', 'Website\Home@index');
+Route::get('test', 'Website\Home@test');
 
 // visitor
 Route::post('visitor/initialize', 'Visitor\Home@initialize');

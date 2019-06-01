@@ -25,7 +25,6 @@ class Admin extends Controller
         {
             return $response;
         }
-
         $admin = $response['admin'];
 
         // update admin
@@ -47,8 +46,9 @@ class Admin extends Controller
         // validate sort
         $sorts = array();
         $sorts[] = 'id';
-        $sorts[] = 'name';
-        $sorts[] = 'lock_period';
+        $sorts[] = 'firstname';
+        $sorts[] = 'email';
+        $sorts[] = 'mobile_number';
         if(in_array($sort, $sorts) == null)
         {
             $response = array();
@@ -69,21 +69,47 @@ class Admin extends Controller
             return $response;
         }
 
+        // get admin_ids
+        $admin_ids = array();
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->select('admin_id');
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $admin_admins = $query->get();
+        $admin_ids = array_column($admin_admins->toArray(), 'admin_id');
+
         // get admins
         $query = \DB::connection('mysql')->table('admins');
         $select = array();
         $select[] = 'id';
-        $select[] = 'name';
+        $select[] = 'image';
+        $select[] = 'firstname';
+        $select[] = 'lastname';
+        $select[] = 'email';
+        $select[] = 'mobile_country';
+        $select[] = 'mobile_number';
         $query->select($select);
         $total_admins = $query->count();
         if(strlen($filter_firstname) != 0)
         {
             $query->where('name', 'like', '%'.$filter_firstname.'%');
         }
+        $query->whereIn('id', $admin_ids);
         $query->where('deleted_at', 0);
         $query->orderBy($sort, $direction);
         $query->paginate($paginate);
         $admins = $query->get();
+
+        // modify admins
+        foreach($admins as $admin)
+        {
+            $image_url = config('app.url').'/images/admins/default.jpg';
+            if(strlen($admin->image) != 0)
+            {
+                $image_url = config('app.url').'/images/admins/'.$admin->image;
+            }
+            $admin->image = $image_url;
+        }
 
         // success
         $response = array();
@@ -100,7 +126,15 @@ class Admin extends Controller
     {
         // set variables
         $api_token = $request->get('api_token');
-        $name = $request->get('name');
+        $image = $request->get('image');
+        $firstname = $request->get('firstname');
+        $lastname = $request->get('lastname');
+        $email = $request->get('email');
+        $mobile_country = $request->get('mobile_country');
+        $mobile_number = $request->get('mobile_number');
+        $password = $request->get('password');
+
+        $image = '';
 
         \Log::info('Admin '.$api_token.' add admin');
 
@@ -110,13 +144,62 @@ class Admin extends Controller
         {
             return $response;
         }
+        $admin = $response['admin'];
 
-        // validate name
-        if(strlen($name) == 0)
+        // validate firstname
+        if(strlen($firstname) == 0)
         {
             $response = array();
             $response['error'] = 1;
-            $response['message'] = 'Building type name is required';
+            $response['message'] = 'First name is required';
+            return $response;
+        }
+
+        // validate lastname
+        if(strlen($lastname) == 0)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Last name is required';
+            return $response;
+        }
+
+        // validate email
+        $result = \Validator::make(['email' => $email], ['email' => 'required|email']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Email is invalid';
+            return $response;
+        }
+
+        // validate mobile_country
+        $result = \Validator::make(['mobile_country' => $mobile_country], ['mobile_country' => 'required|numeric']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Country code is invalid';
+            return $response;
+        }
+
+        // validate mobile_number
+        $result = \Validator::make(['mobile_number' => $mobile_number], ['mobile_number' => 'required|numeric']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Mobile number is invalid';
+            return $response;
+        }
+
+        // validate password
+        if(strlen($password) < 7)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Password should be at least 7 chars';
             return $response;
         }
 
@@ -124,10 +207,26 @@ class Admin extends Controller
         $admin_id = $this->unique_id();
         $data = array();
         $data['id'] = $admin_id;
-        $data['name'] = $name;
+        $data['owner_id'] = '';
+        $data['image'] = $image;
+        $data['firstname'] = $firstname;
+        $data['lastname'] = $lastname;
+        $data['email'] = $email;
+        $data['mobile_country'] = $mobile_country;
+        $data['mobile_number'] = $mobile_number;
+        $data['password'] = bcrypt($password);
         $data['created_at'] = time();
         $data['updated_at'] = time();
         \DB::connection('mysql')->table('admins')->insert($data);
+
+        // insert admin_admins
+        $data = array();
+        $data['id'] = $this->unique_id();
+        $data['owner_id'] = $admin->owner_id;
+        $data['admin_id'] = $admin_id;
+        $data['created_at'] = time();
+        $data['updated_at'] = time();
+        \DB::connection('mysql')->table('admin_admins')->insert($data);
 
         // success
         $response = array();
@@ -150,15 +249,57 @@ class Admin extends Controller
         {
             return $response;
         }
+        $admin = $response['admin'];
+
+        // get admin_admin
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->select('id');
+        $query->where('admin_id', $admin_id);
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $admin_admin = $query->first();
+
+        // if admin_admin not found
+        if($admin_admin == null)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Admin not found';
+            return $response;
+        }
 
         // get admin
         $query = \DB::connection('mysql')->table('admins');
         $select = array();
         $select[] = 'id';
-        $select[] = 'name';
+        $select[] = 'owner_id';
+        $select[] = 'image';
+        $select[] = 'firstname';
+        $select[] = 'lastname';
+        $select[] = 'email';
+        $select[] = 'mobile_country';
+        $select[] = 'mobile_number';
         $query->select($select);
         $query->where('id', $admin_id);
+        $query->where('deleted_at', 0);
         $admin = $query->first();
+
+        // if admin not found
+        if($admin == null)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Admin not found';
+            return $response;
+        }
+
+        // modify admin
+        $image_url = config('app.url').'/images/admins/default.jpg';
+        if(strlen($admin->image) != 0)
+        {
+            $image_url = config('app.url').'/images/admins/'.$admin->image;
+        }
+        $admin->image = $image_url;
 
         // success
         $response = array();
@@ -173,7 +314,13 @@ class Admin extends Controller
         // set variables
         $api_token = $request->get('api_token');
         $admin_id = $request->get('admin_id');
-        $name = $request->get('name');
+        $image = $request->get('image');
+        $firstname = $request->get('firstname');
+        $lastname = $request->get('lastname');
+        $email = $request->get('email');
+        $mobile_country = $request->get('mobile_country');
+        $mobile_number = $request->get('mobile_number');
+        $password = $request->get('password');
 
         \Log::info('Admin '.$api_token.' update admin '.$admin_id);
 
@@ -183,19 +330,108 @@ class Admin extends Controller
         {
             return $response;
         }
+        $admin = $response['admin'];
 
-        // validate name
-        if(strlen($name) == 0)
+        // get admin_admin
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->select('id');
+        $query->where('admin_id', $admin_id);
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $admin_admin = $query->first();
+
+        // if admin_admin not found
+        if($admin_admin == null)
         {
             $response = array();
             $response['error'] = 1;
-            $response['message'] = 'Building type name is required';
+            $response['message'] = 'Admin not found';
             return $response;
+        }
+
+        // validate firstname
+        if(strlen($firstname) == 0)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'First name is required';
+            return $response;
+        }
+
+        // validate lastname
+        if(strlen($lastname) == 0)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Last name is required';
+            return $response;
+        }
+
+        // validate email
+        $result = \Validator::make(['email' => $email], ['email' => 'required|email']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Email is invalid';
+            return $response;
+        }
+
+        // validate mobile_country
+        $result = \Validator::make(['mobile_country' => $mobile_country], ['mobile_country' => 'required|numeric']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Country code is invalid';
+            return $response;
+        }
+
+        // validate mobile_number
+        $result = \Validator::make(['mobile_number' => $mobile_number], ['mobile_number' => 'required|numeric']);
+        if($result->fails())
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Mobile number is invalid';
+            return $response;
+        }
+
+        // validate password
+        if(strlen($password) != 0)
+        if(strlen($password) < 7)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Password should be at least 7 chars';
+            return $response;
+        }
+
+        // if image has changed
+        if(strlen($image) != 0)
+        {
+            $filename = $this->unique_id().'.jpg';
+            $image = \Image::make(file_get_contents($image));
+            $binary = $image->stream()->__toString();
+            \Storage::disk('public')->put('images/admins/'.$filename, $binary);
+            $image = $filename;
         }
 
         // update admin
         $data = array();
-        $data['name'] = $name;
+        if(strlen($image) != 0)
+        {
+            $data['image'] = $image;
+        }
+        $data['firstname'] = $firstname;
+        $data['lastname'] = $lastname;
+        $data['email'] = $email;
+        $data['mobile_country'] = $mobile_country;
+        $data['mobile_number'] = $mobile_number;
+        if(strlen($password) != 0)
+        {
+            $data['password'] = bcrypt($password);
+        }
         $data['updated_at'] = time();
         \DB::connection('mysql')->table('admins')->where('id', $admin_id)->update($data);
 
@@ -220,11 +456,29 @@ class Admin extends Controller
         {
             return $response;
         }
+        $admin = $response['admin'];
 
-        // delete admin
+        // get admin_admin
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->select('id');
+        $query->where('admin_id', $admin_id);
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $admin_admin = $query->first();
+
+        // if admin_admin not found
+        if($admin_admin == null)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Admin not found';
+            return $response;
+        }
+
+        // delete admin_admin
         $data = array();
         $data['deleted_at'] = time();
-        \DB::connection('mysql')->table('admins')->where('id', $admin_id)->update($data);
+        \DB::connection('mysql')->table('admin_admins')->where('id', $admin_admin->id)->update($data);
 
         // success
         $response = array();

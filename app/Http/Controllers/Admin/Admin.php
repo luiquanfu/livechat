@@ -103,10 +103,10 @@ class Admin extends Controller
         // modify admins
         foreach($admins as $admin)
         {
-            $image_url = config('app.url').'/images/admins/default.jpg';
+            $image_url = config('app.url').'/assets/default/admin.jpg';
             if(strlen($admin->image) != 0)
             {
-                $image_url = config('app.url').'/images/admins/'.$admin->image;
+                $image_url = \Storage::disk('public')->url('images/admins/'.$admin->image);
             }
             $admin->image = $image_url;
         }
@@ -133,8 +133,6 @@ class Admin extends Controller
         $mobile_country = $request->get('mobile_country');
         $mobile_number = $request->get('mobile_number');
         $password = $request->get('password');
-
-        $image = '';
 
         \Log::info('Admin '.$api_token.' add admin');
 
@@ -173,6 +171,18 @@ class Admin extends Controller
             $response['message'] = 'Email is invalid';
             return $response;
         }
+        $query = \DB::connection('mysql')->table('admins');
+        $query->select('id');
+        $query->where('email', $email);
+        $query->where('deleted_at', 0);
+        $result = $query->first();
+        if($result != null)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Email is already taken';
+            return $response;
+        }
 
         // validate mobile_country
         $result = \Validator::make(['mobile_country' => $mobile_country], ['mobile_country' => 'required|numeric']);
@@ -203,12 +213,26 @@ class Admin extends Controller
             return $response;
         }
 
+        // image
+        if(strlen($image) != 0)
+        {
+            $filename = $this->unique_id().'.jpg';
+            $image = \Image::make(file_get_contents($image));
+            $binary = $image->stream()->__toString();
+            \Storage::disk('public')->put('images/admins/'.$filename, $binary);
+            $image = $filename;
+        }
+
         // insert admin
         $admin_id = $this->unique_id();
         $data = array();
         $data['id'] = $admin_id;
         $data['owner_id'] = '';
-        $data['image'] = $image;
+        $data['image'] = '';
+        if(strlen($image) != 0)
+        {
+            $data['image'] = $image;
+        }
         $data['firstname'] = $firstname;
         $data['lastname'] = $lastname;
         $data['email'] = $email;
@@ -294,10 +318,10 @@ class Admin extends Controller
         }
 
         // modify admin
-        $image_url = config('app.url').'/images/admins/default.jpg';
+        $image_url = config('app.url').'/assets/default/admin.jpg';
         if(strlen($admin->image) != 0)
         {
-            $image_url = config('app.url').'/images/admins/'.$admin->image;
+            $image_url = \Storage::disk('public')->url('images/admins/'.$admin->image);
         }
         $admin->image = $image_url;
 
@@ -332,23 +356,6 @@ class Admin extends Controller
         }
         $admin = $response['admin'];
 
-        // get admin_admin
-        $query = \DB::connection('mysql')->table('admin_admins');
-        $query->select('id');
-        $query->where('admin_id', $admin_id);
-        $query->where('owner_id', $admin->owner_id);
-        $query->where('deleted_at', 0);
-        $admin_admin = $query->first();
-
-        // if admin_admin not found
-        if($admin_admin == null)
-        {
-            $response = array();
-            $response['error'] = 1;
-            $response['message'] = 'Admin not found';
-            return $response;
-        }
-
         // validate firstname
         if(strlen($firstname) == 0)
         {
@@ -367,14 +374,63 @@ class Admin extends Controller
             return $response;
         }
 
-        // validate email
-        $result = \Validator::make(['email' => $email], ['email' => 'required|email']);
-        if($result->fails())
+        // get admin_admin
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->select('id');
+        $query->where('admin_id', $admin_id);
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $admin_admin = $query->first();
+
+        // if admin_admin not found
+        if($admin_admin == null)
         {
             $response = array();
             $response['error'] = 1;
-            $response['message'] = 'Email is invalid';
+            $response['message'] = 'Admin not found';
             return $response;
+        }
+
+        // get admin
+        $query = \DB::connection('mysql')->table('admins');
+        $query->select('image', 'email');
+        $query->where('id', $admin_id);
+        $query->where('deleted_at', 0);
+        $admin = $query->first();
+
+        // if admin not found
+        if($admin == null)
+        {
+            $response = array();
+            $response['error'] = 1;
+            $response['message'] = 'Admin not found';
+            return $response;
+        }
+
+        // validate email
+        if($email != $admin->email)
+        {
+            $result = \Validator::make(['email' => $email], ['email' => 'required|email']);
+            if($result->fails())
+            {
+                $response = array();
+                $response['error'] = 1;
+                $response['message'] = 'Email is invalid';
+                return $response;
+            }
+            $query = \DB::connection('mysql')->table('admins');
+            $query->select('id');
+            $query->where('id', '!=', $admin_id);
+            $query->where('email', $email);
+            $query->where('deleted_at', 0);
+            $result = $query->first();
+            if($result != null)
+            {
+                $response = array();
+                $response['error'] = 1;
+                $response['message'] = 'Email is already taken';
+                return $response;
+            }
         }
 
         // validate mobile_country
@@ -407,7 +463,7 @@ class Admin extends Controller
             return $response;
         }
 
-        // if image has changed
+        // change image
         if(strlen($image) != 0)
         {
             $filename = $this->unique_id().'.jpg';
@@ -415,6 +471,7 @@ class Admin extends Controller
             $binary = $image->stream()->__toString();
             \Storage::disk('public')->put('images/admins/'.$filename, $binary);
             $image = $filename;
+            \Storage::disk('public')->delete('images/admins/'.$admin->image);
         }
 
         // update admin

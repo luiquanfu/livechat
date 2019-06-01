@@ -816,6 +816,22 @@ function admin_create()
     html += '</div>';
     html += '<div class="box-body">';
 
+    // image
+    html += '<div class="form-group">';
+    html += '<label class="col-sm-3">Image</label>';
+    html += '<div class="col-sm-9">';
+    html += '<div id="div_image">';
+    html += '<img src="' + app_url + '/assets/default/admin.jpg" height="200" width="200">';
+    html += '</div>';
+    html += '<input id="image" type="hidden" value="">';
+    html += '<input id="change_image" type="file" accept="image/*" onchange="admin_load_image(event)">';
+    html += '<div class="height10"></div>';
+    html += '<div style="display: inline-block; width: 200px; text-align: center;">';
+    html += '<label class="btn btn-success" for="change_image">Upload Logo</label>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
     // firstname
     html += '<div class="form-group">';
     html += '<label>First Name</label>';
@@ -917,6 +933,7 @@ function admin_add()
 
     var data = {};
     data.api_token = api_token;
+    data.image = $('#image').val();
     data.firstname = $('#firstname').val();
     data.lastname = $('#lastname').val();
     data.email = $('#email').val();

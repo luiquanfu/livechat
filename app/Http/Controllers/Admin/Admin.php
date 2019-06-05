@@ -32,6 +32,7 @@ class Admin extends Controller
         $last_visit['page'] = 'admin_listing';
         $data = array();
         $data['last_visit'] = json_encode($last_visit);
+        $data['updated_at'] = time();
         \DB::connection('mysql')->table('admins')->where('id', $admin->id)->update($data);
 
         // validate page
@@ -122,6 +123,36 @@ class Admin extends Controller
         return $response;
     }
 
+    public function create(Request $request)
+    {
+        // set variables
+        $api_token = $request->get('api_token');
+
+        \Log::info('Admin '.$api_token.' create admin');
+
+        // validate api_token
+        $response = $this->check_admin($api_token);
+        if($response['error'] != 0)
+        {
+            return $response;
+        }
+        $admin = $response['admin'];
+
+        // get websites
+        $query = \DB::connection('mysql')->table('websites');
+        $query->select('id', 'name');
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $websites = $query->get();
+
+        // success
+        $response = array();
+        $response['error'] = 0;
+        $response['message'] = 'Success';
+        $response['websites'] = $websites;
+        return $response;
+    }
+
     public function add(Request $request)
     {
         // set variables
@@ -133,6 +164,7 @@ class Admin extends Controller
         $mobile_country = $request->get('mobile_country');
         $mobile_number = $request->get('mobile_number');
         $password = $request->get('password');
+        $website_ids = $request->get('website_ids');
 
         \Log::info('Admin '.$api_token.' add admin');
 
@@ -252,6 +284,18 @@ class Admin extends Controller
         $data['updated_at'] = time();
         \DB::connection('mysql')->table('admin_admins')->insert($data);
 
+        // insert website_admins
+        foreach($website_ids as $website_id)
+        {
+            $data = array();
+            $data['id'] = $this->unique_id();
+            $data['website_id'] = $website_id;
+            $data['admin_id'] = $admin_id;
+            $data['created_at'] = time();
+            $data['updated_at'] = time();
+            \DB::connection('mysql')->table('website_admins')->insert($data);
+        }
+
         // success
         $response = array();
         $response['error'] = 0;
@@ -292,6 +336,13 @@ class Admin extends Controller
             return $response;
         }
 
+        // get websites
+        $query = \DB::connection('mysql')->table('websites');
+        $query->select('id', 'name');
+        $query->where('owner_id', $admin->owner_id);
+        $query->where('deleted_at', 0);
+        $websites = $query->get();
+
         // get admin
         $query = \DB::connection('mysql')->table('admins');
         $select = array();
@@ -317,6 +368,13 @@ class Admin extends Controller
             return $response;
         }
 
+        // get website_admins
+        $query = \DB::connection('mysql')->table('website_admins');
+        $query->select('website_id');
+        $query->where('admin_id', $admin_id);
+        $query->where('deleted_at', 0);
+        $website_admins = $query->get();
+
         // modify admin
         $image_url = config('app.url').'/assets/default/admin.jpg';
         if(strlen($admin->image) != 0)
@@ -325,11 +383,24 @@ class Admin extends Controller
         }
         $admin->image = $image_url;
 
+        // modify websites
+        $website_ids = array_column($website_admins->toArray(), 'website_id');
+        foreach($websites as $website)
+        {
+            $selected = 0;
+            if(in_array($website->id, $website_ids))
+            {
+                $selected = 1;
+            }
+            $website->selected = $selected;
+        }
+
         // success
         $response = array();
         $response['error'] = 0;
         $response['message'] = 'Success';
         $response['admin'] = $admin;
+        $response['websites'] = $websites;
         return $response;
     }
 
@@ -345,6 +416,7 @@ class Admin extends Controller
         $mobile_country = $request->get('mobile_country');
         $mobile_number = $request->get('mobile_number');
         $password = $request->get('password');
+        $website_ids = $request->get('website_ids');
 
         \Log::info('Admin '.$api_token.' update admin '.$admin_id);
 
@@ -463,6 +535,55 @@ class Admin extends Controller
             return $response;
         }
 
+        // get website_admins
+        $query = \DB::connection('mysql')->table('website_admins');
+        $query->select('website_id');
+        $query->where('admin_id', $admin_id);
+        $query->where('deleted_at', 0);
+        $website_admins = $query->get();
+
+        // get delete_ids
+        $delete_ids = array();
+        foreach($website_admins as $website_admin)
+        {
+            if(in_array($website_admin->website_id, $website_ids) == false)
+            {
+                $delete_ids[] = $website_admin->website_id;
+            }
+        }
+
+        // get insert_ids
+        $insert_ids = array();
+        $database_ids = array_column($website_admins->toArray(), 'website_id');
+        foreach($website_ids as $website_id)
+        {
+            if(in_array($website_id, $database_ids) == false)
+            {
+                $insert_ids[] = $website_id;
+            }
+        }
+
+        // delete website_admins
+        $data = array();
+        $data['deleted_at'] = time();
+        $query = \DB::connection('mysql')->table('website_admins');
+        $query->where('admin_id', $admin_id);
+        $query->whereIn('website_id', $delete_ids);
+        $query->where('deleted_at', 0);
+        $query->update($data);
+
+        // insert website_admins
+        foreach($insert_ids as $insert_id)
+        {
+            $data = array();
+            $data['id'] = $this->unique_id();
+            $data['website_id'] = $insert_id;
+            $data['admin_id'] = $admin_id;
+            $data['created_at'] = time();
+            $data['updated_at'] = time();
+            \DB::connection('mysql')->table('website_admins')->insert($data);
+        }
+
         // change image
         if(strlen($image) != 0)
         {
@@ -535,7 +656,10 @@ class Admin extends Controller
         // delete admin_admin
         $data = array();
         $data['deleted_at'] = time();
-        \DB::connection('mysql')->table('admin_admins')->where('id', $admin_admin->id)->update($data);
+        $query = \DB::connection('mysql')->table('admin_admins');
+        $query->where('id', $admin_admin->id);
+        $query->where('deleted_at', 0);
+        $query->update($data);
 
         // success
         $response = array();

@@ -64,6 +64,8 @@ days.push('Sunday');
 days.push('Public Holiday');
 days.push('Public Holiday Eve');
 
+var spectrum_options = {};
+
 initialize();
 
 function popup_show(html)
@@ -249,9 +251,9 @@ function ui_display()
     html += '<section class="sidebar">';
     html += '<ul class="sidebar-menu" data-widget="tree">';
     html += '<li><a href="#" onclick="dashboard_index()"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>';
-    html += '<li><a href="#" onclick="admin_index()"><i class="fa fa-user"></i> <span>Admin</span></a></li>';
-    html += '<li><a href="#" onclick="chat_display_index()"><i class="fa fa-camera"></i> <span>Chat Display</span></a></li>';
     html += '<li><a href="#" onclick="website_index()"><i class="fa fa-object-group"></i> <span>Website</span></a></li>';
+    html += '<li><a href="#" onclick="chat_display_index()"><i class="fa fa-camera"></i> <span>Chat Display</span></a></li>';
+    html += '<li><a href="#" onclick="admin_index()"><i class="fa fa-user"></i> <span>Admin</span></a></li>';
     html += '<li><a href="#" onclick="testing()"><i class="fa fa-fire"></i> <span>Testing</span></a></li>';
     html += '<li><a href="#" onclick="logout()"><i class="fa fa-power-off"></i> <span>Logout</span></a></li>';
     html += '</ul>';
@@ -272,6 +274,13 @@ function ui_display()
 
     $('#app').html(html);
     $('body').layout('fix');
+
+    // spectrum
+    spectrum_options.showInput = true;
+    spectrum_options.preferredFormat = 'hex';
+    spectrum_options.chooseText = 'Select';
+    spectrum_options.cancelText = 'Cancel';
+    spectrum_options.color = 'blanchedalmond';
 }
 
 function testing()
@@ -804,83 +813,131 @@ function admin_sorting(sort)
 
 function admin_create()
 {
-    var html = '';
+    loading_show();
 
-    // header
-    html += '<section class="content">';
-    html += '<div class="row">';
-    html += '<div class="col-md-12">';
-    html += '<div class="box box-primary">';
-    html += '<div class="box-header with-border">';
-    html += '<h3 class="box-title">Add Admin</h3>';
-    html += '</div>';
-    html += '<div class="box-body">';
+    var data = {};
+    data.api_token = api_token;
+    data = JSON.stringify(data);
 
-    // image
-    html += '<div class="form-group">';
-    html += '<label class="col-sm-3">Image</label>';
-    html += '<div class="col-sm-9">';
-    html += '<div id="div_image">';
-    html += '<img src="' + app_url + '/assets/default/admin.jpg" height="200" width="200">';
-    html += '</div>';
-    html += '<input id="image" type="hidden" value="">';
-    html += '<input id="change_image" type="file" accept="image/*" onchange="admin_load_image(event)">';
-    html += '<div class="height10"></div>';
-    html += '<div style="display: inline-block; width: 200px; text-align: center;">';
-    html += '<label class="btn btn-success" for="change_image">Upload Logo</label>';
-    html += '</div>';
-    html += '</div>';
-    html += '</div>';
+    var ajax = {};
+	ajax.url = app_url + '/admin/admin/create';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+		
+		if(error != 0)
+		{
+			$('#content').html(message);
+			return;
+		}
 
-    // firstname
-    html += '<div class="form-group">';
-    html += '<label>First Name</label>';
-    html += '<input id="firstname" type="text" class="form-control">';
-    html += '</div>';
+        var websites = response.websites;
+        var html = '';
+        
+        // header
+        html += '<section class="content">';
+        html += '<div class="row">';
+        html += '<div class="col-md-12">';
+        html += '<div class="box box-primary">';
+        html += '<div class="box-header with-border">';
+        html += '<h3 class="box-title">Add Admin</h3>';
+        html += '</div>';
+        html += '<div class="box-body">';
 
-    // lastname
-    html += '<div class="form-group">';
-    html += '<label>Last Name</label>';
-    html += '<input id="lastname" type="text" class="form-control">';
-    html += '</div>';
+        // image
+        html += '<div class="form-group">';
+        html += '<label class="col-sm-3">Image</label>';
+        html += '<div class="col-sm-9">';
+        html += '<div id="div_image">';
+        html += '<img src="' + app_url + '/assets/default/admin.jpg" height="200" width="200">';
+        html += '</div>';
+        html += '<input id="image" type="hidden" value="">';
+        html += '<input id="change_image" type="file" accept="image/*" onchange="admin_load_image(event)">';
+        html += '<div class="height10"></div>';
+        html += '<div style="display: inline-block; width: 200px; text-align: center;">';
+        html += '<label class="btn btn-success" for="change_image">Upload Logo</label>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
 
-    // email
-    html += '<div class="form-group">';
-    html += '<label>Email</label>';
-    html += '<input id="email" type="text" class="form-control">';
-    html += '</div>';
+        // firstname
+        html += '<div class="form-group">';
+        html += '<label>First Name</label>';
+        html += '<input id="firstname" type="text" class="form-control">';
+        html += '</div>';
 
-    // mobile_country
-    html += '<div class="form-group">';
-    html += '<label>Mobile Country</label>';
-    html += '<input id="mobile_country" type="text" class="form-control">';
-    html += '</div>';
+        // lastname
+        html += '<div class="form-group">';
+        html += '<label>Last Name</label>';
+        html += '<input id="lastname" type="text" class="form-control">';
+        html += '</div>';
 
-    // mobile_number
-    html += '<div class="form-group">';
-    html += '<label>Mobile Number</label>';
-    html += '<input id="mobile_number" type="text" class="form-control">';
-    html += '</div>';
+        // website_admins
+        html += '<div class="form-group">';
+        html += '<label>Manage Websites</label>';
+        html += '<select id="website_ids" class="form-control select2" multiple="multiple" data-placeholder="Select Website" style="width: 100%;">';
+        for(i in websites)
+        {
+            var website = websites[i];
+            html += '<option value="' + website.id + '">' + website.name + '</option>';
+        }
+        html += '</select>';
+        html += '</div>';
 
-    // password
-    html += '<div class="form-group">';
-    html += '<label>Password</label>';
-    html += '<input id="password" type="text" class="form-control">';
-    html += '</div>';
+        // email
+        html += '<div class="form-group">';
+        html += '<label>Email</label>';
+        html += '<input id="email" type="text" class="form-control">';
+        html += '</div>';
 
-    // footer
-    html += '</div>';
-    html += '<div class="box-footer">';
-    html += '<div class="btn btn-success" onclick="admin_add()">Add Admin</button>';
-    html += '</div>';
-    html += '<div id="result"></div>';
-    html += '</div>';
-    html += '</div>';
-    html += '</div>';
-    html += '</section>';
+        // mobile_country
+        html += '<div class="form-group">';
+        html += '<label>Mobile Country</label>';
+        html += '<input id="mobile_country" type="text" class="form-control">';
+        html += '</div>';
 
-    $('#content').html(html);
-    $('#change_image').hide();
+        // mobile_number
+        html += '<div class="form-group">';
+        html += '<label>Mobile Number</label>';
+        html += '<input id="mobile_number" type="text" class="form-control">';
+        html += '</div>';
+
+        // password
+        html += '<div class="form-group">';
+        html += '<label>Password</label>';
+        html += '<input id="password" type="text" class="form-control">';
+        html += '</div>';
+
+        // footer
+        html += '</div>';
+        html += '<div class="box-footer">';
+        html += '<div class="btn btn-success" onclick="admin_add()">Add Admin</button>';
+        html += '</div>';
+        html += '<div id="result"></div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</section>';
+
+        $('#content').html(html);
+        $('#change_image').hide();
+        var options = {};
+        options.minimumResultsForSearch = -1;
+        $('.select2').select2(options);
+	}
+    $.ajax(ajax);
 }
 
 function admin_load_image()
@@ -940,6 +997,12 @@ function admin_add()
     data.mobile_country = $('#mobile_country').val();
     data.mobile_number = $('#mobile_number').val();
     data.password = $('#password').val();
+    var website_ids = [];
+	$.each($('#website_ids option:selected'), function()
+	{
+		website_ids.push($(this).val());
+	});
+    data.website_ids = website_ids;
     data = JSON.stringify(data);
 
     var ajax = {};
@@ -1006,6 +1069,7 @@ function admin_edit(admin_id)
 		}
 		
         var admin = response.admin;
+        var websites = response.websites;
         var html = '';
 
         // start
@@ -1049,6 +1113,23 @@ function admin_edit(admin_id)
         html += '<input id="lastname" type="text" class="form-control" value="' + admin.lastname + '">';
         html += '</div>';
 
+        // website_admins
+        html += '<div class="form-group">';
+        html += '<label>Manage Websites</label>';
+        html += '<select id="website_ids" class="form-control select2" multiple="multiple" data-placeholder="Select Website" style="width: 100%;">';
+        for(i in websites)
+        {
+            var website = websites[i];
+            var selected = '';
+            if(website.selected == 1)
+            {
+                selected = 'selected';
+            }
+            html += '<option value="' + website.id + '" ' + selected + '>' + website.name + '</option>';
+        }
+        html += '</select>';
+        html += '</div>';
+
         // email
         html += '<div class="form-group">';
         html += '<label>Email</label>';
@@ -1086,6 +1167,9 @@ function admin_edit(admin_id)
 
         $('#content').html(html);
         $('#change_image').hide();
+        var options = {};
+        options.minimumResultsForSearch = -1;
+        $('.select2').select2(options);
 	}
     $.ajax(ajax);
 }
@@ -1105,6 +1189,12 @@ function admin_update()
     data.mobile_country = $('#mobile_country').val();
     data.mobile_number = $('#mobile_number').val();
     data.password = $('#password').val();
+    var website_ids = [];
+	$.each($('#website_ids option:selected'), function()
+	{
+		website_ids.push($(this).val());
+	});
+    data.website_ids = website_ids;
     data = JSON.stringify(data);
 
     var ajax = {};
@@ -1491,6 +1581,156 @@ function chat_display_edit(chat_display_id)
         html += '<input id="name" type="text" class="form-control" value="' + chat_display.name + '">';
         html += '</div>';
 
+        // body_border_color
+        html += '<div class="form-group">';
+        html += '<label>Chat Border Color</label>';
+        html += '<br><input id="body_border_color" type="text" class="form-control spectrum" value="' + chat_display.body_border_color + '">';
+        html += '</div>';
+
+        // body_height
+        html += '<div class="form-group">';
+        html += '<label>Chat Display Height</label>';
+        html += '<input id="body_height" type="text" class="form-control" value="' + chat_display.body_height + '">';
+        html += '</div>';
+
+        // body_width
+        html += '<div class="form-group">';
+        html += '<label>Chat Display Width</label>';
+        html += '<input id="body_width" type="text" class="form-control" value="' + chat_display.body_width + '">';
+        html += '</div>';
+
+        // body_bottom
+        html += '<div class="form-group">';
+        html += '<label>Chat Bottom Position</label>';
+        html += '<input id="body_bottom" type="text" class="form-control" value="' + chat_display.body_bottom + '">';
+        html += '</div>';
+
+        // body_right
+        html += '<div class="form-group">';
+        html += '<label>Chat Right Position</label>';
+        html += '<input id="body_right" type="text" class="form-control" value="' + chat_display.body_right + '">';
+        html += '</div>';
+
+        // header_height
+        html += '<div class="form-group">';
+        html += '<label>Header Height</label>';
+        html += '<input id="header_height" type="text" class="form-control" value="' + chat_display.header_height + '">';
+        html += '</div>';
+
+        // header_text_color
+        html += '<div class="form-group">';
+        html += '<label>Header Text Color</label>';
+        html += '<br><input id="header_text_color" type="text" class="form-control spectrum" value="' + chat_display.header_text_color + '">';
+        html += '</div>';
+
+        // header_background_color
+        html += '<div class="form-group">';
+        html += '<label>Header Background Color</label>';
+        html += '<br><input id="header_background_color" type="text" class="form-control spectrum" value="' + chat_display.header_background_color + '">';
+        html += '</div>';
+
+        // header_text
+        html += '<div class="form-group">';
+        html += '<label>Header Text</label>';
+        html += '<input id="header_text" type="text" class="form-control" value="' + chat_display.header_text + '">';
+        html += '</div>';
+
+        // header_font_size
+        html += '<div class="form-group">';
+        html += '<label>Header Font Size</label>';
+        html += '<input id="header_font_size" type="text" class="form-control" value="' + chat_display.header_font_size + '">';
+        html += '</div>';
+
+        // footer_line_color
+        html += '<div class="form-group">';
+        html += '<label>Footer Line Color</label>';
+        html += '<br><input id="footer_line_color" type="text" class="form-control spectrum" value="' + chat_display.footer_line_color + '">';
+        html += '</div>';
+
+        // footer_border
+        html += '<div class="form-group">';
+        html += '<label>Footer Border</label>';
+        html += '<input id="footer_border" type="text" class="form-control" value="' + chat_display.footer_border + '">';
+        html += '</div>';
+
+        // footer_height
+        html += '<div class="form-group">';
+        html += '<label>Footer Height</label>';
+        html += '<input id="footer_height" type="text" class="form-control" value="' + chat_display.footer_height + '">';
+        html += '</div>';
+
+        // content_background_color
+        html += '<div class="form-group">';
+        html += '<label>Content Background Color</label>';
+        html += '<br><input id="content_background_color" type="text" class="form-control spectrum" value="' + chat_display.content_background_color + '">';
+        html += '</div>';
+
+        // textbox_text_color
+        html += '<div class="form-group">';
+        html += '<label>Textbox Text Color</label>';
+        html += '<br><input id="textbox_text_color" type="text" class="form-control spectrum" value="' + chat_display.textbox_text_color + '">';
+        html += '</div>';
+
+        // textbox_background_color
+        html += '<div class="form-group">';
+        html += '<label>Textbox Background Color</label>';
+        html += '<br><input id="textbox_background_color" type="text" class="form-control spectrum" value="' + chat_display.textbox_background_color + '">';
+        html += '</div>';
+
+        // textbox_font_size
+        html += '<div class="form-group">';
+        html += '<label>Textbox Font Size</label>';
+        html += '<input id="textbox_font_size" type="text" class="form-control" value="' + chat_display.textbox_font_size + '">';
+        html += '</div>';
+
+        // textbox_text
+        html += '<div class="form-group">';
+        html += '<label>Textbox Placeholder Text</label>';
+        html += '<input id="textbox_text" type="text" class="form-control" value="' + chat_display.textbox_text + '">';
+        html += '</div>';
+
+        // placeholder_color
+        html += '<div class="form-group">';
+        html += '<label>Placeholder Color</label>';
+        html += '<br><input id="placeholder_color" type="text" class="form-control spectrum" value="' + chat_display.placeholder_color + '">';
+        html += '</div>';
+
+        // visitor_text_color
+        html += '<div class="form-group">';
+        html += '<label>Visitor Text Color</label>';
+        html += '<br><input id="visitor_text_color" type="text" class="form-control spectrum" value="' + chat_display.visitor_text_color + '">';
+        html += '</div>';
+
+        // visitor_background_color
+        html += '<div class="form-group">';
+        html += '<label>Visitor Background Color</label>';
+        html += '<br><input id="visitor_background_color" type="text" class="form-control spectrum" value="' + chat_display.visitor_background_color + '">';
+        html += '</div>';
+
+        // visitor_font_size
+        html += '<div class="form-group">';
+        html += '<label>Visitor Font Size</label>';
+        html += '<input id="visitor_font_size" type="text" class="form-control" value="' + chat_display.visitor_font_size + '">';
+        html += '</div>';
+
+        // admin_text_color
+        html += '<div class="form-group">';
+        html += '<label>Admin Text Color</label>';
+        html += '<br><input id="admin_text_color" type="text" class="form-control spectrum" value="' + chat_display.admin_text_color + '">';
+        html += '</div>';
+
+        // admin_background_color
+        html += '<div class="form-group">';
+        html += '<label>Admin Background Color</label>';
+        html += '<br><input id="admin_background_color" type="text" class="form-control spectrum" value="' + chat_display.admin_background_color + '">';
+        html += '</div>';
+
+        // admin_font_size
+        html += '<div class="form-group">';
+        html += '<label>Admin Font Size</label>';
+        html += '<input id="admin_font_size" type="text" class="form-control" value="' + chat_display.admin_font_size + '">';
+        html += '</div>';
+
         // end
         html += '</div>';
         html += '<div class="box-footer">';
@@ -1503,6 +1743,42 @@ function chat_display_edit(chat_display_id)
         html += '</section>';
 
         $('#content').html(html);
+
+        spectrum_options.color = chat_display.body_border_color;
+        $('#body_border_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.header_text_color;
+        $('#header_text_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.header_background_color;
+        $('#header_background_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.footer_line_color;
+        $('#footer_line_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.content_background_color;
+        $('#content_background_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.textbox_text_color;
+        $('#textbox_text_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.textbox_background_color;
+        $('#textbox_background_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.placeholder_color;
+        $('#placeholder_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.visitor_text_color;
+        $('#visitor_text_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.visitor_background_color;
+        $('#visitor_background_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.admin_text_color;
+        $('#admin_text_color').spectrum(spectrum_options);
+
+        spectrum_options.color = chat_display.admin_background_color;
+        $('#admin_background_color').spectrum(spectrum_options);
 	}
     $.ajax(ajax);
 }
@@ -1516,6 +1792,32 @@ function chat_display_update()
     data.api_token = api_token;
     data.chat_display_id = $('#chat_display_id').val();
     data.name = $('#name').val();
+    data.body_border_color = $('#body_border_color').val();
+    data.body_height = $('#body_height').val();
+    data.body_width = $('#body_width').val();
+    data.body_bottom = $('#body_bottom').val();
+    data.body_right = $('#body_right').val();
+    data.header_height = $('#header_height').val();
+    data.header_text_color = $('#header_text_color').val();
+    data.header_background_color = $('#header_background_color').val();
+    data.header_text = $('#header_text').val();
+    data.header_font_size = $('#header_font_size').val();
+    data.footer_line_color = $('#footer_line_color').val();
+    data.footer_border = $('#footer_border').val();
+    data.footer_height = $('#footer_height').val();
+    data.content_background_color = $('#content_background_color').val();
+    data.content_height = $('#content_height').val();
+    data.textbox_text_color = $('#textbox_text_color').val();
+    data.textbox_background_color = $('#textbox_background_color').val();
+    data.textbox_font_size = $('#textbox_font_size').val();
+    data.textbox_text = $('#textbox_text').val();
+    data.placeholder_color = $('#placeholder_color').val();
+    data.visitor_text_color = $('#visitor_text_color').val();
+    data.visitor_background_color = $('#visitor_background_color').val();
+    data.visitor_font_size = $('#visitor_font_size').val();
+    data.admin_text_color = $('#admin_text_color').val();
+    data.admin_background_color = $('#admin_background_color').val();
+    data.admin_font_size = $('#admin_font_size').val();
     data = JSON.stringify(data);
 
     var ajax = {};
@@ -1936,6 +2238,7 @@ function website_edit(website_id)
 		}
 		
         var website = response.website;
+        var chat_displays = response.chat_displays;
         var operating_hours = response.operating_hours;
         var html = '';
 
@@ -1962,6 +2265,37 @@ function website_edit(website_id)
         html += '<div class="form-group">';
         html += '<label>Website URL</label>';
         html += '<input id="url" type="text" class="form-control" value="' + website.url + '">';
+        html += '</div>';
+
+        // api_token
+        html += '<div class="form-group row">';
+        html += '<div class="col-sm-12">';
+        html += 'Please copy and paste this javascript to your website';
+        html += '</div>';
+        html += '<label class="col-sm-3">Javascript URL</label>';
+        html += '<div class="col-sm-9">';
+        html += '<a href="' + website.javascript_url + '" target="_BLANK">' + website.javascript_url + '</a>';
+        html += '<div class="height10"></div>';
+        html += '<div class="btn btn-danger" onclick="website_token()">Re-generate Javascript URL</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // chat_display_id
+        html += '<div class="form-group">';
+        html += '<label>Chat Display</label>';
+        html += '<select id="chat_display_id" class="form-control select2" style="width: 100%;">';
+        html += '<option value="0">Default</option>';
+        for(i in chat_displays)
+        {
+            var chat_display = chat_displays[i];
+            var html_selected = '';
+            if(chat_display.id == website.chat_display_id)
+            {
+                html_selected = 'selected';
+            }
+            html += '<option value="' + chat_display.id + '" ' + html_selected + '>' + chat_display.name + '</option>';
+        }
+        html += '</select>';
         html += '</div>';
 
         // operating_hours
@@ -2067,6 +2401,48 @@ function website_edit(website_id)
     $.ajax(ajax);
 }
 
+function website_token()
+{
+    $('#result').html('<span class="text-light-blue">Please wait...</span>');
+    loading_show();
+
+    var website_id = $('#website_id').val();
+
+    var data = {};
+    data.api_token = api_token;
+    data.website_id = website_id;
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/website/token';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+		
+		if(error == 1)
+		{
+			$('#result').html('<span class="text-red">' + message + '</span>');
+			return;
+		}
+		
+        $('#result').html('<span class="text-green">' + message + '</span>');
+        website_edit(website_id);
+	}
+    $.ajax(ajax);
+}
+
 function website_update()
 {
     $('#result').html('<span class="text-light-blue">Please wait...</span>');
@@ -2077,6 +2453,7 @@ function website_update()
     data.website_id = $('#website_id').val();
     data.name = $('#name').val();
     data.url = $('#url').val();
+    data.chat_display_id = $('#chat_display_id').val();
     var new_operating_hours = [];
     for(i in app_data.new_operating_hour_ids)
     {

@@ -25,7 +25,10 @@ class OperatingHour extends Controller
         // delete operating_hour
         $data = array();
         $data['deleted_at'] = time();
-        \DB::connection('mysql')->table('operating_hours')->where('id', $operating_hour_id)->update($data);
+        $query = \DB::connection('mysql')->table('operating_hours');
+        $query->where('id', $operating_hour_id);
+        $query->where('deleted_at', 0);
+        $query->update($data);
 
         // success
         $response = array();

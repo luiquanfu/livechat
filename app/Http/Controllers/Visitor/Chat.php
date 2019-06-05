@@ -32,9 +32,9 @@ class Chat extends Controller
         // create chat_message
         $chat_message = (object)[];
         $chat_message->id = $this->unique_id();
-        $chat_message->agent_id = '';
+        $chat_message->admin_id = '';
         $chat_message->visitor_id = $visitor->id;
-        $chat_message->agent_name = '';
+        $chat_message->admin_name = '';
         $chat_message->visitor_name = $visitor->firstname;
         $chat_message->created_time = '1:50 PM';
         $chat_message->message = $message;
@@ -50,15 +50,15 @@ class Chat extends Controller
 		$data['task'] = $task;
         \Redis::publish('visitor', json_encode($data));
 
-        // simulate agent response
+        // simulate admin response
         $chat_message = (object)[];
         $chat_message->id = $this->unique_id();
-        $chat_message->agent_id = '123';
+        $chat_message->admin_id = '123';
         $chat_message->visitor_id = '';
-        $chat_message->agent_name = 'Test';
+        $chat_message->admin_name = 'Test';
         $chat_message->visitor_name = '';
         $chat_message->created_time = '1:50 PM';
-        $chat_message->message = 'This is a test respond from the agent';
+        $chat_message->message = 'This is a test respond from the admin';
 		$task = (object)[];
 		$task->chat_message = $chat_message;
 		$data = array();

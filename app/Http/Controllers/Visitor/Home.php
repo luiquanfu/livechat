@@ -17,7 +17,6 @@ class Home extends Controller
         }
         setcookie('visitor_id', $visitor_id, time() + (60 * 60 * 24 * 365 * 1), '/');
 
-        $website_token = str_replace('.js', '', $website_token);
         \Log::info('Visitor '.$visitor_id.' website '.$website_token);
 
         // get visitor
@@ -101,7 +100,7 @@ class Home extends Controller
 
         // get website
         $query = \DB::connection('mysql')->table('websites');
-        $query->select('id');
+        $query->select('id', 'chat_display_id');
         $query->where('api_token', $website_token);
         $query->where('deleted_at', 0);
         $website = $query->first();
@@ -145,37 +144,63 @@ class Home extends Controller
         }
 
         // get chat_display
-        $chat_display = (object)[];
-        $chat_display->body_border_color = '#ffffff';
-        $chat_display->body_height = 520;
-        $chat_display->body_width = 350;
-        $chat_display->header_image = '';
-        $chat_display->header_height = 50;
-        $chat_display->footer_line_color = '#333333';
-        $chat_display->footer_border = 1;
-        $chat_display->footer_height = 119;
-        $chat_display->header_text_color = '#ffffff';
-        $chat_display->header_background_color = '#3c8dbc';
-        $chat_display->header_text = 'We are online and ready to chat with you';
-        $chat_display->header_font_size = 15;
-        $chat_display->content_background_color = '#ffffff';
-        $chat_display->content_height = 350;
-        $chat_display->textbox_text_color = '#000000';
-        $chat_display->textbox_background_color = '#ffffff';
-        $chat_display->textbox_font_size = 15;
-        $chat_display->textbox_text = 'Type your message';
-        $chat_display->textbox_height = 84;
-        $chat_display->visitor_text_color = '#ffffff';
-        $chat_display->visitor_background_color = '#3c8dbc';
-        $chat_display->visitor_font_size = 15;
-        $chat_display->agent_text_color = '#ffffff';
-        $chat_display->agent_background_color = '#dd4b39';
-        $chat_display->agent_font_size = 15;
-        $chat_display->placeholder_color = '#aaaaaa';
-        $chat_display->placeholder_text = 'Type your message';
+        $query = \DB::connection('mysql')->table('chat_displays');
+        $select = array();
+        $select[] = 'header_height';
+        $select[] = 'header_text_color';
+        $select[] = 'header_background_color';
+        $select[] = 'header_text';
+        $select[] = 'header_font_size';
+        $select[] = 'footer_line_color';
+        $select[] = 'footer_border';
+        $select[] = 'footer_height';
+        $select[] = 'content_background_color';
+        $select[] = 'content_height';
+        $select[] = 'textbox_text_color';
+        $select[] = 'textbox_background_color';
+        $select[] = 'textbox_font_size';
+        $select[] = 'textbox_text';
+        $select[] = 'textbox_height';
+        $select[] = 'placeholder_color';
+        $select[] = 'visitor_text_color';
+        $select[] = 'visitor_background_color';
+        $select[] = 'visitor_font_size';
+        $select[] = 'admin_text_color';
+        $select[] = 'admin_background_color';
+        $select[] = 'admin_font_size';
+        $query->select($select);
+        $query->where('id', $website->chat_display_id);
+        $query->where('deleted_at', 0);
+        $chat_display = $query->first();
 
-        // $chat_display->textbox_text_color = '#ffffff';
-        // $chat_display->textbox_background_color = '#3c8dbc';
+        // $chat_display = (object)[];
+        // $chat_display->body_border_color = '#ffffff';
+        // $chat_display->body_height = 520;
+        // $chat_display->body_width = 350;
+        // $chat_display->header_image = '';
+        // $chat_display->header_height = 50;
+        // $chat_display->footer_line_color = '#333333';
+        // $chat_display->footer_border = 1;
+        // $chat_display->footer_height = 119;
+        // $chat_display->header_text_color = '#ffffff';
+        // $chat_display->header_background_color = '#3c8dbc';
+        // $chat_display->header_text = 'We are online and ready to chat with you';
+        // $chat_display->header_font_size = 15;
+        // $chat_display->content_background_color = '#ffffff';
+        // $chat_display->content_height = 350;
+        // $chat_display->textbox_text_color = '#000000';
+        // $chat_display->textbox_background_color = '#ffffff';
+        // $chat_display->textbox_font_size = 15;
+        // $chat_display->textbox_text = 'Type your message';
+        // $chat_display->textbox_height = 84;
+        // $chat_display->visitor_text_color = '#ffffff';
+        // $chat_display->visitor_background_color = '#3c8dbc';
+        // $chat_display->visitor_font_size = 15;
+        // $chat_display->agent_text_color = '#ffffff';
+        // $chat_display->agent_background_color = '#dd4b39';
+        // $chat_display->agent_font_size = 15;
+        // $chat_display->placeholder_color = '#aaaaaa';
+        // $chat_display->placeholder_text = 'Type your message';
 
         // response
         $response = array();
@@ -185,5 +210,52 @@ class Home extends Controller
         $response['chat_room'] = $chat_room;
         $response['chat_display'] = $chat_display;
         return $response;
+    }
+
+    public function livechat($website_token)
+    {
+        $website_token = str_replace('.js', '', $website_token);
+        \Log::info('Livechat '.$website_token.' launch');
+
+        // get website
+        $query = \DB::connection('mysql')->table('websites');
+        $query->select('chat_display_id');
+        $query->where('api_token', $website_token);
+        $query->where('deleted_at', 0);
+        $website = $query->first();
+
+        // if website not found
+        if($website == null)
+        {
+            return 'invalid request';
+        }
+
+        // get chat_display
+        $query = \DB::connection('mysql')->table('chat_displays');
+        $select = array();
+        $select[] = 'body_border_color';
+        $select[] = 'body_height';
+        $select[] = 'body_width';
+        $select[] = 'body_bottom';
+        $select[] = 'body_right';
+        $select[] = 'header_background_color';
+        $select[] = 'header_text_color';
+        $query->select($select);
+        $query->where('id', $website->chat_display_id);
+        $query->where('deleted_at', 0);
+        $chat_display = $query->first();
+
+        // if chat_display not found
+        if($chat_display == null)
+        {
+            return 'invalid request';
+        }
+
+        $data = array();
+        $data['app_url'] = config('app.url');
+        $data['website_token'] = $website_token;
+        $data['chat_display'] = $chat_display;
+        $script = view('livechat', $data)->render();
+        return \Response::make($script, 200)->header('Content-Type', 'application/javascript');
     }
 }

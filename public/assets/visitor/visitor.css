@@ -36,5 +36,5 @@ body {margin: 0px; border-radius: 10px; font-family: Arial;}
 .textbox {font-family: Arial; width: calc(100% - 20px); padding: 15px 10px 20px 10px; border-radius: 0px 0px 10px 10px; border: 0px; outline: none; resize: none;}
 .visitor_chat {padding: 10px; text-align: right;}
 .visitor_message {max-width: calc(100% - 80px); text-align: left; padding: 10px 15px; border-radius: 10px; display: inline-block;}
-.agent_chat {padding: 10px; text-align: left;}
-.agent_message {max-width: calc(100% - 80px); text-align: left; padding: 10px 15px; border-radius: 10px; display: inline-block;}
+.admin_chat {padding: 10px; text-align: left;}
+.admin_message {max-width: calc(100% - 80px); text-align: left; padding: 10px 15px; border-radius: 10px; display: inline-block;}

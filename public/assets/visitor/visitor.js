@@ -112,6 +112,7 @@ function ui_display()
     var style_content = '';
     style_content += 'style="';
     style_content += 'background-color: ' + chat_display.content_background_color + ';';
+    style_content += 'height: ' + chat_display.content_height + ';';
     style_content += '"';
 
     var style_footer = '';
@@ -135,7 +136,7 @@ function ui_display()
     html += '<div id="content" class="content" ' + style_content + '>';
     html += '</div>';
     html += '<div id="footer" class="footer" ' + style_footer + '>';
-    html += '<textarea id="textbox" class="textbox" ' + style_textbox + ' placeholder="' + chat_display.placeholder_text + '" onkeyup="textbox_onkeyup(event)"></textarea>';
+    html += '<textarea id="textbox" class="textbox" ' + style_textbox + ' placeholder="' + chat_display.textbox_text + '" onkeyup="textbox_onkeyup(event)"></textarea>';
     html += '</div>';
 
     $('#app').html(html);
@@ -189,12 +190,12 @@ function chat_message(task)
     style_visitor += 'font-size: ' + chat_display.visitor_font_size + 'px;';
     style_visitor += '"';
 
-    var style_agent = '';
-    style_agent += 'style="';
-    style_agent += 'background-color: ' + chat_display.agent_background_color + ';';
-    style_agent += 'color: ' + chat_display.agent_text_color + ';';
-    style_agent += 'font-size: ' + chat_display.agent_font_size + 'px;';
-    style_agent += '"';
+    var style_admin = '';
+    style_admin += 'style="';
+    style_admin += 'background-color: ' + chat_display.admin_background_color + ';';
+    style_admin += 'color: ' + chat_display.admin_text_color + ';';
+    style_admin += 'font-size: ' + chat_display.admin_font_size + 'px;';
+    style_admin += '"';
 
     var chat_message = task.chat_message;
     var html = '';
@@ -209,10 +210,10 @@ function chat_message(task)
         html += '</div>';
     }
 
-    if(chat_message.agent_id.length != 0)
+    if(chat_message.admin_id.length != 0)
     {
-        html += '<div id="chat_message_' + chat_message.id + '" class="agent_chat">';
-        html += '<div class="agent_message" ' + style_agent + '>';
+        html += '<div id="chat_message_' + chat_message.id + '" class="admin_chat">';
+        html += '<div class="admin_message" ' + style_admin + '>';
         html += chat_message.message;
         // html += chat_message.created_time;
         html += '</div>';

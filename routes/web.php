@@ -22,6 +22,7 @@ Route::post('visitor/chat/message', 'Visitor\Chat@message');
 Route::post('visitor/chat/close', 'Visitor\Chat@close');
 Route::post('visitor/chat/rating', 'Visitor\Chat@rating');
 Route::get('visitor/{website_token}', 'Visitor\Home@index');
+Route::get('livechat/{website_token}', 'Visitor\Home@livechat');
 
 // admin general
 Route::get('admin', 'Admin\Home@index');
@@ -30,8 +31,9 @@ Route::post('admin/login', 'Admin\Home@login');
 Route::post('admin/logout', 'Admin\Home@logout');
 Route::post('admin/test', 'Admin\Home@test');
 
-// admin chat_display
+// admin admin
 Route::post('admin/admin/listing', 'Admin\Admin@listing');
+Route::post('admin/admin/create', 'Admin\Admin@create');
 Route::post('admin/admin/add', 'Admin\Admin@add');
 Route::post('admin/admin/edit', 'Admin\Admin@edit');
 Route::post('admin/admin/update', 'Admin\Admin@update');
@@ -48,6 +50,7 @@ Route::post('admin/chat_display/destroy', 'Admin\ChatDisplay@destroy');
 Route::post('admin/website/listing', 'Admin\Website@listing');
 Route::post('admin/website/add', 'Admin\Website@add');
 Route::post('admin/website/edit', 'Admin\Website@edit');
+Route::post('admin/website/token', 'Admin\Website@token');
 Route::post('admin/website/update', 'Admin\Website@update');
 Route::post('admin/website/destroy', 'Admin\Website@destroy');
 Route::post('admin/operating_hour/destroy', 'Admin\OperatingHour@destroy');

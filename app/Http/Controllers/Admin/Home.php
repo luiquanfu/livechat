@@ -165,7 +165,10 @@ class Home extends Controller
         // delete admin_token
         $data = array();
         $data['deleted_at'] = time();
-        \DB::connection('mysql')->table('admin_tokens')->where('api_token', $api_token)->update($data);
+        $query = \DB::connection('mysql')->table('admin_tokens');
+        $query->where('api_token', $api_token);
+        $query->where('deleted_at', 0);
+        $query->update($data);
         setcookie('admin_token', null, time() - 1, '/');
 
         // success

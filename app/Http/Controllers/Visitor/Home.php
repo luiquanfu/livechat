@@ -173,35 +173,6 @@ class Home extends Controller
         $query->where('deleted_at', 0);
         $chat_display = $query->first();
 
-        // $chat_display = (object)[];
-        // $chat_display->body_border_color = '#ffffff';
-        // $chat_display->body_height = 520;
-        // $chat_display->body_width = 350;
-        // $chat_display->header_image = '';
-        // $chat_display->header_height = 50;
-        // $chat_display->footer_line_color = '#333333';
-        // $chat_display->footer_border = 1;
-        // $chat_display->footer_height = 119;
-        // $chat_display->header_text_color = '#ffffff';
-        // $chat_display->header_background_color = '#3c8dbc';
-        // $chat_display->header_text = 'We are online and ready to chat with you';
-        // $chat_display->header_font_size = 15;
-        // $chat_display->content_background_color = '#ffffff';
-        // $chat_display->content_height = 350;
-        // $chat_display->textbox_text_color = '#000000';
-        // $chat_display->textbox_background_color = '#ffffff';
-        // $chat_display->textbox_font_size = 15;
-        // $chat_display->textbox_text = 'Type your message';
-        // $chat_display->textbox_height = 84;
-        // $chat_display->visitor_text_color = '#ffffff';
-        // $chat_display->visitor_background_color = '#3c8dbc';
-        // $chat_display->visitor_font_size = 15;
-        // $chat_display->agent_text_color = '#ffffff';
-        // $chat_display->agent_background_color = '#dd4b39';
-        // $chat_display->agent_font_size = 15;
-        // $chat_display->placeholder_color = '#aaaaaa';
-        // $chat_display->placeholder_text = 'Type your message';
-
         // response
         $response = array();
         $response['error'] = 0;

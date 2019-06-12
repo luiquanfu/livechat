@@ -14,6 +14,7 @@ class Home extends Controller
 
     public function test()
     {
+        return trans('auth.failed');
         $admin_ids = array();
         $query = \DB::connection('mysql')->table('admins');
         $query->select('id');

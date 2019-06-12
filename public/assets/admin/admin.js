@@ -131,24 +131,53 @@ function socket_io()
     });
 
     //socket message
-    socket.on('message', function(data)
+    socket.on('message', function(task)
     {
-        var action = data.action;
+        var action = task.action;
         console.log('action = ' + action);
         
-        if(action == 'chat_group')
+        if(action == 'chat_room')
         {
-            chat_message(data.task);
+            socket_chat_room(task);
         }
         if(action == 'chat_message')
         {
-            chat_message(data.task);
+            socket_chat_message(task);
         }
     });
 }
 
-function socket_new_chat()
+function socket_chat_room(task)
 {
+    var chat_room = task.chat_room;
+    var chat_room_exist = false;
+    var chat_room_admins = app_data.chat_room_admins;
+
+    for(i in chat_room_admins)
+    {
+        var chat_room_admin = chat_room_admins[i];
+        if(chat_room_admin.chat_room_id == chat_room.id)
+        {
+            chat_room_exist = true;
+        }
+    }
+
+    if(chat_room_exist == false)
+    {
+        var html = '';
+        html += '<div id="conversation_chat_room_' + chat_room.id + '" class="conversation_chat_room" onclick="chat_room_show(\'' + chat_room.id + '\')">';
+        html += '<i class="fa fa-commenting"></i> <div class="width5"></div>New Chat';
+        $('#conversation').prepend(html);
+
+        var chat_room_admin = {};
+        chat_room_admin.chat_room_id = chat_room.id;
+        app_data.chat_room_admins.push(chat_room_admin);
+    }
+}
+
+function socket_chat_message(task)
+{
+    console.log(task);
     var html = '';
     html += '<div style="padding: 12px 5px 12px 18px; background-color: #f39c12; color:#ffffff">';
     html += '<i class="fa fa-commenting"></i> <div class="width5"></div>New Chat';
@@ -179,6 +208,7 @@ function initialize()
 
         var admin = response.admin;
         app_data.admin = admin;
+        app_data.chat_room_admins = response.chat_room_admins;
         
         ui_display();
         socket_io();
@@ -437,13 +467,69 @@ function logout()
     $.ajax(ajax);
 }
 
-function chat_message(task)
+function chat_room_show(chat_room_id)
 {
-    var html = '';
-    html += '<br>firstname = ' + task.firstname;
-    html += '<br>created at = ' + task.created_at;
-    html += '<br>message = ' + task.message;
-    $('#content').html(html);
+    loading_show();
+
+    var data = {};
+    data.api_token = api_token;
+    data.chat_room_id = chat_room_id;
+    data = JSON.stringify(data);
+
+    var ajax = {};
+	ajax.url = app_url + '/admin/chat_room/show';
+	ajax.data = data;
+	ajax.type = 'post';
+	ajax.contentType = 'application/json; charset=utf-8';
+	ajax.processData = false;
+	ajax.success = function(response)
+	{
+        loading_hide();
+		var error = response.error;
+        var message = response.message;
+        
+        if(error == 99)
+        {
+            login_display();
+            return;
+        }
+
+        if(error != 0)
+        {
+            $('#result').html('<span class="text-red">' + message + '</span>');
+            return;
+        }
+
+        // start
+        html += '<section class="content">';
+        html += '<div class="row">';
+        html += '<div class="col-md-12">';
+        html += '<div class="box box-primary">';
+        html += '<div class="box-header with-border">';
+        html += '<h3 class="box-title">Add Chat Display</h3>';
+        html += '</div>';
+        html += '<div class="box-body">';
+
+        // name
+        html += '<div class="form-group">';
+        html += '<label>Chat Display Name</label>';
+        html += '<input id="name" type="text" class="form-control">';
+        html += '</div>';
+
+        // end
+        html += '</div>';
+        html += '<div class="box-footer">';
+        html += '<div class="btn btn-success" onclick="chat_display_add()">Add Chat Display</button>';
+        html += '</div>';
+        html += '<div id="result"></div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</section>';
+
+        $('#content').html(html);
+	}
+    $.ajax(ajax);
 }
 
 function dashboard_index()
@@ -451,7 +537,6 @@ function dashboard_index()
     website_index();
     return;
 
-    app_data = {};
     app_data.filter_bank_id = '';
     app_data.filter_package_id = '';
     dashboard_list();
@@ -642,7 +727,6 @@ function dashboard_list()
 
 function admin_index()
 {
-    app_data = {};
     app_data.page = 1;
     app_data.sort = 'firstname';
     app_data.direction = 'asc';
@@ -1287,7 +1371,6 @@ function admin_destroy(admin_id)
 
 function chat_display_index()
 {
-    app_data = {};
     app_data.page = 1;
     app_data.sort = 'name';
     app_data.direction = 'asc';
@@ -1910,7 +1993,6 @@ function chat_display_destroy(chat_display_id)
 
 function bank_index()
 {
-    app_data = {};
     app_data.page = 1;
     app_data.sort = 'name';
     app_data.direction = 'asc';
@@ -1920,7 +2002,6 @@ function bank_index()
 
 function website_index()
 {
-    app_data = {};
     app_data.page = 1;
     app_data.sort = 'name';
     app_data.direction = 'asc';
@@ -2268,16 +2349,17 @@ function website_edit(website_id)
         html += '</div>';
 
         // api_token
-        html += '<div class="form-group row">';
-        html += '<div class="col-sm-12">';
-        html += 'Please copy and paste this javascript to your website';
+        html += '<div class="form-group">';
+        html += '<label>Copy this javascript to your website</label>';
+        html += '<div class="input-group" onclick="website_copy()">';
+        html += '<div class="input-group-btn">';
+        html += '<div class="btn btn-info"><i class="fa fa-copy"></i> Copy</div>';
         html += '</div>';
-        html += '<label class="col-sm-3">Javascript URL</label>';
-        html += '<div class="col-sm-9">';
-        html += '<a href="' + website.javascript_url + '" target="_BLANK">' + website.javascript_url + '</a>';
+        html += '<input id="api_token" type="text" class="form-control" value=\'<script src="' + website.javascript_url + '"></script>\' spellcheck="false">';
+        html += '</div>';
         html += '<div class="height10"></div>';
-        html += '<div class="btn btn-danger" onclick="website_token()">Re-generate Javascript URL</div>';
-        html += '</div>';
+        html += '<p>If necessary, you can re-generate a new javascript URL by clicking the red button below</p>';
+        html += '<div class="btn btn-danger" onclick="website_token()">Re-generate Javascript</div>';
         html += '</div>';
 
         // chat_display_id
@@ -2441,6 +2523,12 @@ function website_token()
         website_edit(website_id);
 	}
     $.ajax(ajax);
+}
+
+function website_copy()
+{
+    $('#api_token').select();
+    document.execCommand('copy');
 }
 
 function website_update()

@@ -35,3 +35,6 @@
     0% {transform: translate(0, 0);}
     100% {transform: translate(19px, 0);}
 }
+
+/* conversation */
+.conversation_chat_room {padding: 12px 5px 12px 18px; background-color: #f39c12; color:#ffffff; cursor: pointer;}

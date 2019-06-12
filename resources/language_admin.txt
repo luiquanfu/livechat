@@ -1,0 +1,38 @@
+Variable	English	Chinese	Malay
+website_management	Website Management	网站管理	Pengurusan Laman Web
+listing_of_all_websites	Listing of all websites	所有网站的列表	Penyenaraian semua laman web
+filters	Filters	过滤器	Penapis
+website_name	Website Name	网站名称	Nama Laman Web
+filters	Filter	过滤	Penapis
+create_website	Create Website	创建网站	Buat laman web
+website_list	Website List	网站列表	Senarai Laman Web
+name	Name	名称	Nama
+url	URL	网址	URL
+actions	Actions	操作	Tindakan
+engage_your_customer	Engage Your Customer	吸引客户	Terlibat Pelanggan Anda
+version	Version XXXX1	版本XXXX1	Versi XXXX1
+edit_website	Edit Website	编辑网站	Edit Laman Web
+website_url	Website URL	网址	URL laman web
+operating_hours	Operating Hours	营业时间	Waktu operasi
+monday	Monday	星期一	Isnin
+tuesday	Tuesday	星期二	Selasa
+wednesday	Wednesday	星期三	Rabu
+thursday	Thursday	星期四	Khamis
+friday	Friday	星期五	Jumaat
+saturday	Saturday	星期六	Sabtu
+sunday	Sunday	星期日	Ahad
+public_holiday	Public Holiday	公共假期	Cuti umum
+public_holiday_eve	Public Holiday Eve	公众假期前夜	Malam Cuti Umum
+day	Day	天	Hari
+open_time	Open Time	开放时间	Masa Terbuka
+close_time	Close Time	关闭时间	Tutup masa
+update_website	Update Website	更新网站	Kemas kini Laman Web
+add_operating_hour	Add Operating Hour	添加营业时间	Tambah Jam Operasi
+logout	Logout	登出	Log keluar
+admin_login	Admin Login	管理员登录	Login Admin
+email	Email	电子邮件	E-mel
+password	Password	密码	Kata laluan
+sign_in_using_facebook	Sign in using Facebook	使用Facebook登录	Log masuk menggunakan Facebook
+or	OR	要么	ATAU
+forgot_your_password	Forgot your password?	忘记密码了吗？	Lupa kata laluan anda?
+sign_up_free_account	Sign up for a free account	注册一个免费帐户	Daftar untuk akaun percuma

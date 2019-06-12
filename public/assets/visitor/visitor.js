@@ -53,7 +53,7 @@ function socket_io()
     //socket message
     socket.on('message', function(data)
     {
-        var action = data.action;
+        var action = data.task.action;
         console.log('action = ' + action);
         
         if(action == 'chat_group')
@@ -152,11 +152,11 @@ function textbox_onkeyup(event)
 {
     if(event.keyCode == 13)
     {
-        textbox_submit();
+        chat_message_add();
     }
 }
 
-function textbox_submit()
+function chat_message_add()
 {
     // get message
     var message = $('#textbox').val().trim();
@@ -173,7 +173,7 @@ function textbox_submit()
     data = JSON.stringify(data);
 
     var ajax = {};
-	ajax.url = app_url + '/visitor/chat/message';
+	ajax.url = app_url + '/visitor/chat_message/add';
 	ajax.data = data;
 	ajax.type = 'post';
 	ajax.contentType = 'application/json; charset=utf-8';

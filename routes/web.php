@@ -17,7 +17,7 @@ Route::get('test', 'Website\Home@test');
 
 // visitor
 Route::post('visitor/initialize', 'Visitor\Home@initialize');
-Route::post('visitor/chat/open', 'Visitor\Chat@open');
+Route::post('visitor/chat_message/add', 'Visitor\ChatMessage@add');
 Route::post('visitor/chat/message', 'Visitor\Chat@message');
 Route::post('visitor/chat/close', 'Visitor\Chat@close');
 Route::post('visitor/chat/rating', 'Visitor\Chat@rating');

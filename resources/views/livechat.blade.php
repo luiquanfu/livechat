@@ -20,7 +20,7 @@ function livechat_init()
     // livechat_close
     html += '<div id="livechat_close" style="position: fixed; right: {{ $chat_display->body_right }}px; bottom: {{ $chat_display->body_bottom }}px; height: 60px; width: 60px; cursor: pointer; z-index: 99999999;" onclick="livechat_close()">';
     html += '<div style="background-color: {{ $chat_display->header_background_color }}; color: {{ $chat_display->header_text_color }}; height: 60px; width: 60px; border-radius: 30px;">';
-    html += '<i class="icono-cross" style="zoom: 1.5; margin: 4px 0px 0px 5px;"></i>';
+    html += '<i class="icono-cross" style="margin: 13px 0px 0px 15px;"></i>';
     html += '</div>';
     html += '</div>';
 

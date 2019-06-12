@@ -117,12 +117,13 @@ categories.forEach(function(category)
         // console.log(data);
 		data = JSON.parse(data);
 		var socket_id = data.socket_id;
+		var task = data.task;
 		if(typeof(websockets[channel][socket_id]) !== 'undefined')
 		{
 			for(var random_id in websockets[channel][socket_id])
 			{
-				console.log(channel + ' ' + socket_id + ' (' + random_id + ') ' + data.action);
-				websockets[channel][socket_id][random_id].emit('message', data);
+				console.log(channel + ' ' + socket_id + ' (' + random_id + ') ' + task.action);
+				websockets[channel][socket_id][random_id].emit('message', task);
 			}
 		}
     });

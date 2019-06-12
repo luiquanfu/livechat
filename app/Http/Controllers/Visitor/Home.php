@@ -34,7 +34,7 @@ class Home extends Controller
             // create visitor
             $visitor = (object)[];
             $visitor->id = $visitor_id;
-            $visitor->firstname = '';
+            $visitor->firstname = 'Guest';
             $visitor->lastname = '';
             $visitor->email = '';
             $visitor->mobile_country = '';

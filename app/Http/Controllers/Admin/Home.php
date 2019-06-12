@@ -48,14 +48,21 @@ class Home extends Controller
         {
             return $response;
         }
-
         $admin = $response['admin'];
+
+        // get chat_room_admins
+        $query = \DB::connection('mysql')->table('chat_room_admins');
+        $query->select('chat_room_id');
+        $query->where('admin_id', $admin->id);
+        $query->where('deleted_at', 0);
+        $chat_room_admins = $query->get();
 
         // success
         $response = array();
         $response['error'] = 0;
         $response['message'] = 'Success';
         $response['admin'] = $admin;
+        $response['chat_room_admins'] = $chat_room_admins;
         return $response;
     }
 
